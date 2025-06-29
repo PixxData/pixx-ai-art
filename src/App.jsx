@@ -156,22 +156,6 @@ function App() {
               <img className="ai-result-img" src={imageUrl} alt="AI Result" />
               {/* No text below image */}
             </div>
-            <button
-              className="ai-edit-btn"
-              style={{
-                margin: "18px auto 0",
-                display: "block",
-                fontSize: "1.1em",
-                padding: "10px 26px",
-                borderRadius: "9px",
-                background: "#5db6e5",
-                color: "#fff",
-                border: "none",
-                cursor: "pointer",
-                boxShadow: "0 2px 10px #0001"
-              }}
-              onClick={handleEditOpen}
-            >
               Edit image / Add text
             </button>
           </div>
@@ -355,8 +339,6 @@ function App() {
                     onClick={() => { setUserText(""); setShowTextControls(false); }}
                     type="button"
                   >
-                    Remove Text
-                  </button>
                 </>
               )}
               <button
