@@ -6,12 +6,14 @@ function App() {
   const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [shape, setShape] = useState("square");
+  const [shape, setShape] = useState("landscape"); // Landscape default
 
-  // New edit mode states
+  // Edit modal states
   const [editing, setEditing] = useState(false);
   const [saturation, setSaturation] = useState(1);
   const [userText, setUserText] = useState("");
+  const [showOnImage, setShowOnImage] = useState(true);
+  const [showBg, setShowBg] = useState(true);
 
   const sizeOptions = {
     square: "1024x1024",
@@ -24,7 +26,7 @@ function App() {
     setImageUrl("");
     setError("");
     setLoading(true);
-    setEditing(false); // reset editing mode
+    setEditing(false);
 
     try {
       const res = await fetch("/api/generate-image", {
@@ -45,7 +47,7 @@ function App() {
       }
 
       setImageUrl(data.imageUrl);
-      setSaturation(1); // reset edits
+      setSaturation(1);
       setUserText("");
     } catch (err) {
       setError("Network or server error.");
@@ -102,6 +104,10 @@ function App() {
           <div>
             <div className="ai-image-card">
               <img className="ai-result-img" src={imageUrl} alt="AI Result" />
+              <div className="ai-img-footer">{prompt}</div>
+              <div className="ai-img-footer" style={{ fontSize: "0.95em", color: "#999" }}>
+                Shape: {shape.charAt(0).toUpperCase() + shape.slice(1)}
+              </div>
             </div>
             <button
               className="ai-edit-btn"
@@ -125,78 +131,176 @@ function App() {
         )}
 
         {/* EDIT MODE MODAL */}
-{imageUrl && editing && (
-  <div className="ai-edit-modal" style={{
-    position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
-    background: "rgba(16,20,26,0.98)", zIndex: 9999,
-    display: "flex", alignItems: "center", justifyContent: "center"
-  }}>
-    <div style={{
-      background: "#232838",
-      padding: "20px 10px 16px",
-      borderRadius: "20px",
-      boxShadow: "0 10px 60px #0009",
-      textAlign: "center",
-      maxWidth: "96vw",
-      width: "100%",
-      margin: "0",
-      color: "#eaf1fa",
-      minHeight: "auto",
-      maxHeight: "95vh",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center"
-    }}>
-      <img
-        src={imageUrl}
-        alt="Editable AI result"
-        style={{
-          width: "100%",
-          maxWidth: "calc(95vw - 48px)",
-          maxHeight: "70vh",
-          borderRadius: "14px",
-          filter: `saturate(${saturation})`,
-          border: "2px solid #282f4a",
-          background: "#232838",
-          objectFit: "contain",
-          display: "block"
-        }}
-      />
-      <div style={{margin:"18px 0 10px"}}>
-        <label>Saturation:&nbsp;</label>
-        <input
-          type="range"
-          min="0"
-          max="3"
-          step="0.01"
-          value={saturation}
-          onChange={e => setSaturation(e.target.value)}
-          style={{ width: "190px" }}
-        />&nbsp;
-        <b>{saturation}</b>
-      </div>
-      <button
-        style={{
-          marginTop: "5px",
-          padding: "10px 32px",
-          background: "#0094dd",
-          color: "#fff",
-          border: "none",
-          borderRadius: "8px",
-          fontSize: "1.08em",
-          cursor: "pointer",
-          fontWeight: 500,
-          boxShadow: "0 1px 10px #0001"
-        }}
-        onClick={() => setEditing(false)}
-      >
-        Done Editing
-      </button>
-    </div>
-  </div>
-)}
+        {imageUrl && editing && (
+          <div className="ai-edit-modal" style={{
+            position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
+            background: "rgba(16,20,26,0.98)", zIndex: 9999,
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}>
+            <div style={{
+              background: "#232838",
+              padding: "20px 12px 16px",
+              borderRadius: "22px",
+              boxShadow: "0 10px 60px #000a",
+              textAlign: "center",
+              maxWidth: "96vw",
+              width: "100%",
+              margin: "0",
+              color: "#eaf1fa",
+              maxHeight: "95vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+              <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <img
+                  src={imageUrl}
+                  alt="Editable AI result"
+                  style={{
+                    width: "100%",
+                    maxWidth: "calc(95vw - 48px)",
+                    maxHeight: "70vh",
+                    borderRadius: "14px",
+                    filter: `saturate(${saturation})`,
+                    border: "2px solid #282f4a",
+                    background: "#232838",
+                    objectFit: "contain",
+                    display: "block"
+                  }}
+                />
+                {/* Show text OVER image */}
+                {showOnImage && userText && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: "8%",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "90%",
+                      pointerEvents: "none",
+                      textAlign: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: showBg ? "13px 30px" : "0px",
+                        background: showBg ? "rgba(0,0,0,0.62)" : "none",
+                        color: "#fff",
+                        fontWeight: 700,
+                        fontSize: "2.1em",
+                        borderRadius: "14px",
+                        boxShadow: showBg ? "0 2px 12px #0005" : "none",
+                        textShadow: "1px 2px 12px #0009",
+                        wordBreak: "break-word",
+                        maxWidth: "95%",
+                        overflowWrap: "break-word",
+                      }}
+                    >
+                      {userText}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div style={{ margin: "18px 0 10px", width: "96%" }}>
+                <label>Saturation:&nbsp;</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="3"
+                  step="0.01"
+                  value={saturation}
+                  onChange={e => setSaturation(e.target.value)}
+                  style={{ width: "190px" }}
+                />&nbsp;
+                <b>{saturation}</b>
+              </div>
+
+              {/* Text input */}
+              <input
+                type="text"
+                value={userText}
+                placeholder="Type text to add to your image"
+                onChange={e => setUserText(e.target.value)}
+                style={{
+                  margin: "14px auto 6px", fontSize: "1.2em", width: "92%",
+                  display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
+                }}
+              />
+
+              {/* Toggle: Over image or below, and background */}
+              <div style={{ marginTop: "2px", marginBottom: "12px", display: "flex", gap: "24px", justifyContent: "center" }}>
+                <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+                  <input
+                    type="radio"
+                    checked={showOnImage}
+                    onChange={() => setShowOnImage(true)}
+                    style={{ marginRight: "6px" }}
+                  />
+                  Show ON image
+                </label>
+                <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+                  <input
+                    type="radio"
+                    checked={!showOnImage}
+                    onChange={() => setShowOnImage(false)}
+                    style={{ marginRight: "6px" }}
+                  />
+                  Show BELOW image
+                </label>
+                <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+                  <input
+                    type="checkbox"
+                    checked={showBg}
+                    onChange={() => setShowBg(v => !v)}
+                    style={{ marginRight: "7px" }}
+                  />
+                  Text background
+                </label>
+              </div>
+
+              {/* If showing below image */}
+              {!showOnImage && userText && (
+                <div style={{
+                  margin: "12px auto 0",
+                  color: "#fff",
+                  background: showBg ? "#222d43" : "none",
+                  padding: showBg ? "12px 22px" : "0px",
+                  borderRadius: "12px",
+                  fontWeight: 600,
+                  fontSize: "1.45em",
+                  letterSpacing: "0.03em",
+                  boxShadow: showBg ? "0 2px 10px #0002" : "none",
+                  textShadow: "1px 2px 10px #0008",
+                  width: "90%",
+                  textAlign: "center"
+                }}>
+                  {userText}
+                </div>
+              )}
+
+              <button
+                style={{
+                  marginTop: "17px",
+                  padding: "12px 38px",
+                  background: "#0094dd",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "10px",
+                  fontSize: "1.15em",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  boxShadow: "0 1px 14px #0002"
+                }}
+                onClick={() => setEditing(false)}
+              >
+                Done Editing
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Initial instructions */}
         {!imageUrl && !error && !loading && (
