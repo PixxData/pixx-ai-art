@@ -295,7 +295,7 @@ function App() {
                     placeholder="Type text to add to your image"
                     onChange={e => setUserText(e.target.value)}
                     style={{
-                      margin: "14px auto 6px", fontSize: "1.2em", width: "75%",
+                      margin: "14px auto 6px", fontSize: "1.2em", width: "65%",
                       display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
                     }}
                   />
