@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./App.css";
 
 function App() {
@@ -6,19 +6,60 @@ function App() {
   const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [shape, setShape] = useState("landscape"); // Landscape default
+  const [shape, setShape] = useState("landscape");
 
   // Edit modal states
   const [editing, setEditing] = useState(false);
   const [saturation, setSaturation] = useState(1);
   const [userText, setUserText] = useState("");
-  const [showOnImage, setShowOnImage] = useState(true);
   const [showBg, setShowBg] = useState(true);
+
+  // Drag states
+  const [textPos, setTextPos] = useState({ x: 0.5, y: 0.85 }); // % (0-1)
+  const dragStart = useRef({ x: 0, y: 0 });
+  const dragging = useRef(false);
 
   const sizeOptions = {
     square: "1024x1024",
     landscape: "1792x1024",
     portrait: "1024x1792",
+  };
+
+  // Drag logic
+  const handleTextMouseDown = (e) => {
+    dragging.current = true;
+    const img = document.getElementById("edit-img");
+    const rect = img.getBoundingClientRect();
+    dragStart.current = {
+      offsetX: e.clientX - (rect.left + textPos.x * rect.width),
+      offsetY: e.clientY - (rect.top + textPos.y * rect.height),
+      imgRect: rect,
+    };
+    document.addEventListener("mousemove", handleTextMouseMove);
+    document.addEventListener("mouseup", handleTextMouseUp);
+  };
+
+  const handleTextMouseMove = (e) => {
+    if (!dragging.current) return;
+    const { imgRect, offsetX, offsetY } = dragStart.current;
+    const relX = e.clientX - imgRect.left - offsetX;
+    const relY = e.clientY - imgRect.top - offsetY;
+    setTextPos({
+      x: Math.min(Math.max(relX / imgRect.width, 0), 1),
+      y: Math.min(Math.max(relY / imgRect.height, 0), 1),
+    });
+  };
+
+  const handleTextMouseUp = () => {
+    dragging.current = false;
+    document.removeEventListener("mousemove", handleTextMouseMove);
+    document.removeEventListener("mouseup", handleTextMouseUp);
+  };
+
+  // Reset text position if user clears or regenerates image
+  const handleEditOpen = () => {
+    setEditing(true);
+    setTextPos({ x: 0.5, y: 0.85 });
   };
 
   const handleSubmit = async (e) => {
@@ -123,7 +164,7 @@ function App() {
                 cursor: "pointer",
                 boxShadow: "0 2px 10px #0001"
               }}
-              onClick={() => setEditing(true)}
+              onClick={handleEditOpen}
             >
               Edit image / Add text
             </button>
@@ -158,6 +199,7 @@ function App() {
                 <img
                   src={imageUrl}
                   alt="Editable AI result"
+                  id="edit-img"
                   style={{
                     width: "100%",
                     maxWidth: "calc(95vw - 48px)",
@@ -170,18 +212,20 @@ function App() {
                     display: "block"
                   }}
                 />
-                {/* Show text OVER image */}
-                {showOnImage && userText && (
+                {/* Show text OVER image (DRAGGABLE!) */}
+                {userText && (
                   <div
                     style={{
                       position: "absolute",
-                      bottom: "8%",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "90%",
-                      pointerEvents: "none",
-                      textAlign: "center",
+                      left: `${textPos.x * 100}%`,
+                      top: `${textPos.y * 100}%`,
+                      transform: "translate(-50%,-50%)",
+                      pointerEvents: "auto",
+                      cursor: "move",
+                      userSelect: "none",
+                      zIndex: 10,
                     }}
+                    onMouseDown={handleTextMouseDown}
                   >
                     <span
                       style={{
@@ -197,6 +241,7 @@ function App() {
                         wordBreak: "break-word",
                         maxWidth: "95%",
                         overflowWrap: "break-word",
+                        pointerEvents: "none", // so only parent handles mouse events
                       }}
                     >
                       {userText}
@@ -230,26 +275,8 @@ function App() {
                 }}
               />
 
-              {/* Toggle: Over image or below, and background */}
+              {/* Toggle: Background */}
               <div style={{ marginTop: "2px", marginBottom: "12px", display: "flex", gap: "24px", justifyContent: "center" }}>
-                <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
-                  <input
-                    type="radio"
-                    checked={showOnImage}
-                    onChange={() => setShowOnImage(true)}
-                    style={{ marginRight: "6px" }}
-                  />
-                  Show ON image
-                </label>
-                <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
-                  <input
-                    type="radio"
-                    checked={!showOnImage}
-                    onChange={() => setShowOnImage(false)}
-                    style={{ marginRight: "6px" }}
-                  />
-                  Show BELOW image
-                </label>
                 <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
                   <input
                     type="checkbox"
@@ -260,26 +287,6 @@ function App() {
                   Text background
                 </label>
               </div>
-
-              {/* If showing below image */}
-              {!showOnImage && userText && (
-                <div style={{
-                  margin: "12px auto 0",
-                  color: "#fff",
-                  background: showBg ? "#222d43" : "none",
-                  padding: showBg ? "12px 22px" : "0px",
-                  borderRadius: "12px",
-                  fontWeight: 600,
-                  fontSize: "1.45em",
-                  letterSpacing: "0.03em",
-                  boxShadow: showBg ? "0 2px 10px #0002" : "none",
-                  textShadow: "1px 2px 10px #0008",
-                  width: "90%",
-                  textAlign: "center"
-                }}>
-                  {userText}
-                </div>
-              )}
 
               <button
                 style={{
