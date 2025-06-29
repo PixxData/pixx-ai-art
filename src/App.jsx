@@ -129,90 +129,104 @@ function App() {
         )}
 
         {/* EDIT MODE MODAL */}
-        {imageUrl && editing && (
-          <div className="ai-edit-modal" style={{
-            position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
-            background: "rgba(24,32,44,0.96)", zIndex: 9999, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center"
-          }}>
-            <div style={{
-              margin: "auto",
-              background: "#fff",
-              padding: "30px 18px 18px",
-              borderRadius: "24px",
-              boxShadow: "0 10px 60px #0007",
-              textAlign: "center",
-              maxWidth: "95vw"
-            }}>
-              <h2 style={{color:"#0066a0",marginBottom:"18px"}}>Edit Your Image</h2>
-              <img
-                src={imageUrl}
-                alt="Editable AI result"
-                style={{
-                  width: "70vw", maxWidth: "1024px", borderRadius: "20px",
-                  filter: `saturate(${saturation})`,
-                  marginBottom: "20px",
-                  border: "2px solid #eee",
-                  background: "#fff"
-                }}
-              />
-              <div style={{margin:"18px 0"}}>
-                <label>Saturation:&nbsp;</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="3"
-                  step="0.01"
-                  value={saturation}
-                  onChange={e => setSaturation(e.target.value)}
-                  style={{ width: "250px" }}
-                />&nbsp;
-                <b>{saturation}</b>
-              </div>
-              <input
-                type="text"
-                value={userText}
-                placeholder="Type text to add..."
-                onChange={e => setUserText(e.target.value)}
-                style={{
-                  margin: "10px auto 0", fontSize: "1.15em", width: "80%",
-                  display: "block", padding: "10px", borderRadius: "8px", border: "1.2px solid #ddd"
-                }}
-              />
-              <div
-                style={{
-                  color: "#333",
-                  background: "#eef2fa",
-                  margin: "24px auto 0",
-                  maxWidth: "80vw",
-                  minHeight: "30px",
-                  padding: "10px 16px",
-                  borderRadius: "12px",
-                  fontSize: "1.25em",
-                  boxShadow: "0 2px 10px #0001"
-                }}
-              >
-                {userText}
-              </div>
-              <button
-                style={{
-                  marginTop: "30px",
-                  padding: "10px 32px",
-                  background: "#0094dd",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontSize: "1.08em",
-                  cursor: "pointer",
-                  fontWeight: 500,
-                  boxShadow: "0 1px 10px #0001"
-                }}
-                onClick={() => setEditing(false)}
-              >
-                Done Editing
-              </button>
-            </div>
-          </div>
-        )}
+{imageUrl && editing && (
+  <div className="ai-edit-modal" style={{
+    position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
+    background: "rgba(16,20,26,0.98)", zIndex: 9999,
+    display: "flex", alignItems: "center", justifyContent: "center"
+  }}>
+    <div style={{
+      background: "#232838",
+      padding: "22px 14px 16px",
+      borderRadius: "20px",
+      boxShadow: "0 10px 60px #0009",
+      textAlign: "center",
+      maxWidth: "430px",
+      width: "98vw",
+      margin: "0",
+      color: "#eaf1fa",
+      minHeight: "auto",
+      maxHeight: "97vh",
+      overflow: "hidden"
+    }}>
+      <h2 style={{color:"#60c0ff",marginBottom:"13px"}}>Edit Your Image</h2>
+      <img
+        src={imageUrl}
+        alt="Editable AI result"
+        style={{
+          width: "100%",
+          maxWidth: "400px",
+          maxHeight: "280px",
+          borderRadius: "13px",
+          filter: `saturate(${saturation})`,
+          marginBottom: "14px",
+          border: "2px solid #282f4a",
+          background: "#232838",
+          objectFit: "contain",
+          display: "block",
+          marginLeft: "auto",
+          marginRight: "auto"
+        }}
+      />
+      <div style={{margin:"14px 0"}}>
+        <label>Saturation:&nbsp;</label>
+        <input
+          type="range"
+          min="0"
+          max="3"
+          step="0.01"
+          value={saturation}
+          onChange={e => setSaturation(e.target.value)}
+          style={{ width: "165px" }}
+        />&nbsp;
+        <b>{saturation}</b>
+      </div>
+      <input
+        type="text"
+        value={userText}
+        placeholder="Type text to add..."
+        onChange={e => setUserText(e.target.value)}
+        style={{
+          margin: "9px auto 0", fontSize: "1em", width: "90%",
+          display: "block", padding: "8px", borderRadius: "8px",
+          border: "1.2px solid #2d354a", background: "#232838", color: "#eaf1fa"
+        }}
+      />
+      <div
+        style={{
+          color: "#eaf1fa",
+          background: "#282f4a",
+          margin: "17px auto 0",
+          maxWidth: "90vw",
+          minHeight: "25px",
+          padding: "8px 14px",
+          borderRadius: "9px",
+          fontSize: "1.07em",
+          boxShadow: "0 2px 10px #0001"
+        }}
+      >
+        {userText}
+      </div>
+      <button
+        style={{
+          marginTop: "23px",
+          padding: "8px 22px",
+          background: "#0094dd",
+          color: "#fff",
+          border: "none",
+          borderRadius: "8px",
+          fontSize: "1em",
+          cursor: "pointer",
+          fontWeight: 500,
+          boxShadow: "0 1px 10px #0001"
+        }}
+        onClick={() => setEditing(false)}
+      >
+        Done Editing
+      </button>
+    </div>
+  </div>
+)}
 
         {/* Initial instructions */}
         {!imageUrl && !error && !loading && (
