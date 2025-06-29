@@ -126,7 +126,7 @@ body: JSON.stringify({
                 marginBottom: "14px",
                 padding: "8px",
                 borderRadius: "8px",
-                fontSize: "1.1em",
+                fontSize: "1.0em",
                 minWidth: "185px"
               }}
             >
