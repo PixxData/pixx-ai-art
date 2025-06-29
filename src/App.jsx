@@ -245,26 +245,26 @@ function App() {
                     }}
                     onMouseDown={handleMouseDown}
                   >
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "13px 30px",
-                        background: showBg ? "rgba(0,0,0,0.62)" : "transparent",
-                        color: "#fff",
-                        fontWeight: 700,
-                        fontSize: `${fontSize}em`,
-                        fontFamily: fontFamily,
-                        borderRadius: "14px",
-                        boxShadow: showBg ? "0 2px 12px #0005" : "none",
-                        textShadow: "1px 2px 12px #0009",
-                        wordBreak: "break-word",
-                        maxWidth: "95%",
-                        overflowWrap: "break-word",
-                        pointerEvents: "none"
-                      }}
-                    >
-                      {userText}
-                    </span>
+<span
+  style={{
+    display: "inline-block",
+    padding: "13px 30px",
+    background: showBg ? "rgba(0,0,0,0.62)" : "transparent",
+    color: "#fff",
+    fontWeight: 700,
+    fontSize: `${fontSize}em`,
+    fontFamily: fontFamily,
+    borderRadius: "14px",
+    boxShadow: showBg ? "0 2px 12px #0005" : "none",
+    textShadow: "1px 2px 12px #0009",
+    whiteSpace: "nowrap",            // <--- prevent wrapping
+    maxWidth: "100vw",               // <--- allow more room
+    overflow: "hidden",              // <--- hide overflow
+    pointerEvents: "none"
+  }}
+>
+  {userText}
+</span>
                   </div>
                 )}
               </div>
