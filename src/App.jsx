@@ -10,10 +10,10 @@ const PRODUCT_OPTIONS = [
 function App() {
   const [prompt, setPrompt] = useState("");
   const [shape, setShape] = useState("landscape");
-  const [images, setImages] = useState([]);   // Array of 4 image URLs
+  const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [orderProduct, setOrderProduct] = useState({}); // { idx: product }
+  const [orderProduct, setOrderProduct] = useState({});
 
   const sizeOptions = {
     square: "1024x1024",
@@ -21,7 +21,6 @@ function App() {
     portrait: "1024x1792",
   };
 
-  // 1. Generate 4 images at once
   const handleSubmit = async (e) => {
     e.preventDefault();
     setImages([]);
@@ -35,7 +34,6 @@ function App() {
         body: JSON.stringify({
           prompt,
           size: sizeOptions[shape],
-          n: 4, // <---- This makes OpenAI generate 4 images
         }),
       });
       const data = await res.json();
@@ -63,7 +61,7 @@ function App() {
     setLoading(true);
 
     try {
-      // Upload image to S3 via your backend endpoint
+      // Upload image to S3 via your backend endpoint (replace with your code!)
       const uploadRes = await fetch("/api/upload-s3", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,7 +122,7 @@ function App() {
               required
             />
             <button className="ai-generate-btn" type="submit" disabled={loading || !prompt.trim()}>
-              {loading ? "Generating..." : "Generate 4 Images"}
+              {loading ? "Generating..." : "Generate 2 Images"}
             </button>
           </form>
           {error && <div className="ai-error-box">{error}</div>}
@@ -135,7 +133,7 @@ function App() {
           )}
         </div>
         {/* Image Grid */}
-        <div style={{ flex: 2, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" }}>
+        <div style={{ flex: 2, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
           {images.map((img, idx) => (
             <div key={img} className="ai-image-card" style={{ background: "#222", borderRadius: "14px", padding: "10px" }}>
               <img src={img} alt="AI Option" style={{ width: "100%", borderRadius: "12px" }} />

@@ -1,14 +1,12 @@
 import axios from "axios";
 
 export default async function handler(req, res) {
-  // Only allow POST
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
 
-  // Use default to 4 images if n not supplied
-  const { prompt, size = "1024x1024", n = 4 } = req.body;
+  const { prompt, size = "1024x1024" } = req.body;
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -21,29 +19,38 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/images/generations",
-      {
-        model: "dall-e-3",
-        prompt,
-        n,         // <---- Pass n (number of images) from client
-        size
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
+    // Request two images separately
+    const getImage = async () => {
+      const response = await axios.post(
+        "https://api.openai.com/v1/images/generations",
+        {
+          model: "dall-e-3",
+          prompt,
+          n: 1, // DALL·E 3 only allows 1 at a time
+          size
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+          }
         }
-      }
-    );
+      );
+      return response.data.data?.[0]?.url;
+    };
 
-    // Map the returned images to URLs
-    const images = (response.data.data || []).map(obj => obj.url).filter(Boolean);
+    // Generate 2 images (sequentially)
+    const images = [];
+    for (let i = 0; i < 2; i++) {
+      const url = await getImage();
+      if (url) images.push(url);
+    }
+
     if (!images.length) {
-      res.status(500).json({ error: "No images returned from OpenAI" });
+      res.status(500).json({ error: "No image returned from OpenAI" });
       return;
     }
-    res.status(200).json({ images }); // <---- Send as array!
+    res.status(200).json({ images });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
