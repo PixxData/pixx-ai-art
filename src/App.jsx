@@ -111,7 +111,7 @@ body: JSON.stringify({
           <h1 style={{
             color: "#93d0ff",
             fontWeight: 800,
-            fontSize: "2.2em",
+            fontSize: "1.75em",
             margin: "0 0 25px 0",
             letterSpacing: "0.01em",
             textShadow: "0 1px 18px #0022"
