@@ -1,23 +1,19 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import "./App.css";
+
+const PRODUCT_OPTIONS = [
+  { label: "Acrylic, Metal, Stretched Canvas", value: "print" },
+  { label: "Paper print", value: "paper" },
+  { label: "Framed print", value: "framed" },
+];
 
 function App() {
   const [prompt, setPrompt] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [shape, setShape] = useState("landscape");
+  const [images, setImages] = useState([]);   // Array of 4 image URLs
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [shape, setShape] = useState("landscape");
-
-  // Edit mode states
-  const [editing, setEditing] = useState(false);
-  const [userText, setUserText] = useState("");
-  const [showBg, setShowBg] = useState(true);
-  const [fontSize, setFontSize] = useState(2);
-  const [fontFamily, setFontFamily] = useState("Arial, sans-serif");
-  const [showTextControls, setShowTextControls] = useState(false);
-  // For dragging text
-  const [textPos, setTextPos] = useState({ x: 0.5, y: 0.85 });
-  const dragInfo = useRef({ dragging: false, offsetX: 0, offsetY: 0 });
+  const [orderProduct, setOrderProduct] = useState({}); // { idx: product }
 
   const sizeOptions = {
     square: "1024x1024",
@@ -25,21 +21,13 @@ function App() {
     portrait: "1024x1792",
   };
 
-const fontOptions = [
-  { label: "Arial", value: "Arial, sans-serif" },
-  { label: "Georgia", value: "Georgia, serif" },
-  { label: "Impact", value: "Impact, Charcoal, sans-serif" },
-  { label: "Dancing Script", value: "'Dancing Script', cursive" },      // <-- Modern script
-  { label: "Lato Thin", value: "'Lato', Arial, sans-serif" },           // <-- Thin font
-  { label: "Courier New", value: "'Courier New', Courier, monospace" }
-];
-
+  // 1. Generate 4 images at once
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setImageUrl("");
+    setImages([]);
     setError("");
     setLoading(true);
-    setEditing(false);
+
     try {
       const res = await fetch("/api/generate-image", {
         method: "POST",
@@ -47,294 +35,140 @@ const fontOptions = [
         body: JSON.stringify({
           prompt,
           size: sizeOptions[shape],
+          n: 4, // <---- This makes OpenAI generate 4 images
         }),
       });
       const data = await res.json();
+
       if (!res.ok) {
-        setError(data.error || "Error generating image.");
+        setError(data.error || "Error generating images.");
         setLoading(false);
         return;
       }
-      setImageUrl(data.imageUrl);
-      setUserText("");
-      setShowTextControls(false);
-      setTextPos({ x: 0.5, y: 0.85 });
-      setFontFamily("Arial, sans-serif");
+
+      setImages(data.images || []);
     } catch (err) {
       setError("Network or server error.");
     }
     setLoading(false);
   };
 
-  // --- Drag to move the text overlay ---
-  const handleMouseDown = (e) => {
-    if (!editing || !showTextControls) return;
-    dragInfo.current.dragging = true;
-    const rect = e.target.parentElement.getBoundingClientRect();
-    dragInfo.current.offsetX = e.clientX - (rect.left + rect.width * textPos.x);
-    dragInfo.current.offsetY = e.clientY - (rect.top + rect.height * textPos.y);
-    document.body.style.userSelect = "none";
-  };
-  const handleMouseMove = (e) => {
-    if (!dragInfo.current.dragging) return;
-    const container = document.getElementById("edit-img-wrap");
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
-    let x = (e.clientX - rect.left - dragInfo.current.offsetX) / rect.width;
-    let y = (e.clientY - rect.top - dragInfo.current.offsetY) / rect.height;
-    x = Math.min(Math.max(x, 0), 1);
-    y = Math.min(Math.max(y, 0), 1);
-    setTextPos({ x, y });
-  };
-  const handleMouseUp = () => {
-    dragInfo.current.dragging = false;
-    document.body.style.userSelect = "";
-  };
-  React.useEffect(() => {
-    if (!editing || !showTextControls) return;
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-    // eslint-disable-next-line
-  }, [editing, showTextControls, textPos]);
+  // 2. Order (upload to S3, then redirect to print app)
+  const handleOrder = async (imgUrl, idx) => {
+    const product = orderProduct[idx];
+    if (!product) {
+      alert("Please select a product type.");
+      return;
+    }
+    setLoading(true);
 
-  const handleEditOpen = () => {
-    setEditing(true);
-    setShowTextControls(false);
-    setTextPos({ x: 0.5, y: 0.85 });
+    try {
+      // Upload image to S3 via your backend endpoint
+      const uploadRes = await fetch("/api/upload-s3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: imgUrl }),
+      });
+      const uploadData = await uploadRes.json();
+
+      if (!uploadRes.ok || !uploadData.s3Url) {
+        throw new Error(uploadData.error || "Upload failed");
+      }
+
+      // Redirect to correct order app with s3Url as parameter
+      let orderUrl = "";
+      if (product === "print") {
+        orderUrl = `https://YOUR-APP-PRINT.com?img=${encodeURIComponent(uploadData.s3Url)}`;
+      } else if (product === "paper") {
+        orderUrl = `https://YOUR-APP-PAPER.com?img=${encodeURIComponent(uploadData.s3Url)}`;
+      } else if (product === "framed") {
+        orderUrl = `https://YOUR-APP-FRAMED.com?img=${encodeURIComponent(uploadData.s3Url)}`;
+      }
+      window.open(orderUrl, "_blank");
+    } catch (e) {
+      alert("Error uploading image: " + e.message);
+    }
+    setLoading(false);
   };
 
   return (
     <div className="ai-app-bg">
-      <div className="ai-app-container">
-        <h1>Pixx Prompt-to-Image</h1>
-        <form className="ai-form" onSubmit={handleSubmit}>
-          <select
-            className="ai-shape-select"
-            value={shape}
-            onChange={e => setShape(e.target.value)}
-            disabled={loading}
-            style={{
-              marginBottom: "14px",
-              padding: "8px",
-              borderRadius: "8px",
-              fontSize: "1em",
-              minWidth: "180px"
-            }}
-          >
-            <option value="square">Square</option>
-            <option value="landscape">Landscape</option>
-            <option value="portrait">Portrait</option>
-          </select>
-          <input
-            className="ai-prompt-input"
-            type="text"
-            placeholder="Enter your creative prompt (eg. 'Surreal sunset over Calgary skyline')"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            disabled={loading}
-            autoFocus
-            required
-          />
-          <button className="ai-generate-btn" type="submit" disabled={loading || !prompt.trim()}>
-            {loading ? (
-              <span className="ai-spinner"></span>
-            ) : (
-              "Generate Image"
-            )}
-          </button>
-        </form>
-
-        {error && <div className="ai-error-box">{error}</div>}
-
-        {/* IMAGE DISPLAY & EDIT BUTTON */}
-        {imageUrl && !editing && (
-          <div>
-            <div className="ai-image-card">
-              <img className="ai-result-img" src={imageUrl} alt="AI Result" />
-              {/* No text below image */}
-            </div>
-              Edit image / Add text
+      <div className="ai-app-container" style={{ display: "flex", gap: "36px" }}>
+        <div style={{ flex: 1, minWidth: 320 }}>
+          <h1>Pixx Prompt-to-Image</h1>
+          <form className="ai-form" onSubmit={handleSubmit}>
+            <select
+              className="ai-shape-select"
+              value={shape}
+              onChange={e => setShape(e.target.value)}
+              disabled={loading}
+              style={{
+                marginBottom: "12px",
+                padding: "8px",
+                borderRadius: "8px",
+                fontSize: "1em"
+              }}
+            >
+              <option value="square">Square</option>
+              <option value="landscape">Landscape</option>
+              <option value="portrait">Portrait</option>
+            </select>
+            <input
+              className="ai-prompt-input"
+              type="text"
+              placeholder="Describe your image..."
+              value={prompt}
+              onChange={e => setPrompt(e.target.value)}
+              disabled={loading}
+              autoFocus
+              required
+            />
+            <button className="ai-generate-btn" type="submit" disabled={loading || !prompt.trim()}>
+              {loading ? "Generating..." : "Generate 4 Images"}
             </button>
-          </div>
-        )}
-
-        {/* EDIT MODE MODAL */}
-        {imageUrl && editing && (
-          <div className="ai-edit-modal" style={{
-            position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
-            background: "rgba(16,20,26,0.98)", zIndex: 9999,
-            display: "flex", alignItems: "center", justifyContent: "center"
-          }}>
-            <div style={{
-              background: "#232838",
-              padding: "20px 10px 16px",
-              borderRadius: "20px",
-              boxShadow: "0 10px 60px #0009",
-              textAlign: "center",
-              maxWidth: "96vw",
-              width: "100%",
-              margin: "0",
-              color: "#eaf1fa",
-              minHeight: "auto",
-              maxHeight: "95vh",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center"
-            }}>
-              {/* Edit Image Display, with draggable text */}
-              <div
-                id="edit-img-wrap"
-                style={{
-                  position: "relative",
-                  display: "inline-block",
-                  width: "min(92vw, 1000px)",
-                  height: "auto",
-                  maxHeight: "70vh",
-                  aspectRatio: shape === "portrait" ? "9/16"
-                    : shape === "landscape" ? "16/9" : "1/1",
-                  background: "#1a1c26",
-                  overflow: "hidden",
-                  margin: "0 auto"
-                }}
-              >
-                <img
-                  src={imageUrl}
-                  alt="Editable AI result"
+          </form>
+          {error && <div className="ai-error-box">{error}</div>}
+          {!images.length && !error && !loading && (
+            <div className="ai-instructions">
+              Enter a prompt and click <b>Generate</b>!
+            </div>
+          )}
+        </div>
+        {/* Image Grid */}
+        <div style={{ flex: 2, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "24px" }}>
+          {images.map((img, idx) => (
+            <div key={img} className="ai-image-card" style={{ background: "#222", borderRadius: "14px", padding: "10px" }}>
+              <img src={img} alt="AI Option" style={{ width: "100%", borderRadius: "12px" }} />
+              <div style={{ margin: "10px 0" }}>
+                <select
+                  value={orderProduct[idx] || ""}
+                  onChange={e => setOrderProduct(prev => ({ ...prev, [idx]: e.target.value }))}
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                    borderRadius: "14px",
-                    border: "2px solid #282f4a",
-                    background: "#232838",
-                    display: "block",
+                    borderRadius: "7px",
+                    padding: "6px 12px",
+                    fontSize: "1em",
+                    marginBottom: "8px"
                   }}
-                />
-                {/* Draggable text overlay */}
-                {showTextControls && userText && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: `${textPos.x * 100}%`,
-                      top: `${textPos.y * 100}%`,
-                      transform: "translate(-50%, -50%)",
-                      cursor: "move",
-                      zIndex: 20,
-                      userSelect: "none",
-                    }}
-                    onMouseDown={handleMouseDown}
-                  >
-<span
-  style={{
-    display: "inline-block",
-    padding: "13px 30px",
-    background: showBg ? "rgba(0,0,0,0.62)" : "transparent",
-    color: "#fff",
-    fontWeight: 700,
-    fontSize: `${fontSize}em`,
-    fontFamily: fontFamily,
-    borderRadius: "14px",
-    boxShadow: showBg ? "0 2px 12px #0005" : "none",
-    textShadow: "1px 2px 12px #0009",
-    whiteSpace: "nowrap",            // <--- prevent wrapping
-    maxWidth: "100vw",               // <--- allow more room
-    overflow: "hidden",              // <--- hide overflow
-    pointerEvents: "none"
-  }}
->
-  {userText}
-</span>
-                  </div>
-                )}
-              </div>
-              {/* Add Text button / controls */}
-              {!showTextControls && (
+                >
+                  <option value="">Select product…</option>
+                  {PRODUCT_OPTIONS.map(opt =>
+                    <option value={opt.value} key={opt.value}>{opt.label}</option>
+                  )}
+                </select>
                 <button
                   style={{
-                    margin: "14px 0 8px",
-                    padding: "8px 22px",
-                    background: "#444d66",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "9px",
-                    fontSize: "1em",
-                    cursor: "pointer"
+                    width: "100%", marginTop: "4px",
+                    padding: "10px 0", borderRadius: "8px",
+                    background: "#0094dd", color: "#fff",
+                    border: "none", fontWeight: "bold", cursor: "pointer"
                   }}
-                  onClick={() => setShowTextControls(true)}
-                  type="button"
-                >
-                  Add Text
-                </button>
-              )}
-{showTextControls && (
-  <>
-    <input
-      type="text"
-      value={userText}
-      placeholder="Type text to add to your image"
-      onChange={e => setUserText(e.target.value)}
-      style={{
-        margin: "14px auto 6px", fontSize: "1.2em", width: "54%",
-        display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
-      }}
-    />
-    <div style={{ margin: "6px 0 8px", display: "flex", gap: "24px", justifyContent: "center" }}>
-      <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
-        <input
-          type="checkbox"
-          checked={showBg}
-          onChange={() => setShowBg(v => !v)}
-          style={{ marginRight: "7px" }}
-        />
-        Text background
-      </label>
-      <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
-        Font:&nbsp;
-        <select
-          value={fontFamily}
-          onChange={e => setFontFamily(e.target.value)}
-          style={{
-            fontSize: "1em",
-            borderRadius: "7px",
-            padding: "2px 10px",
-          }}
-        >
-          {fontOptions.map(opt => (
-            <option value={opt.value} key={opt.value}>{opt.label}</option>
+                  onClick={() => handleOrder(img, idx)}
+                  disabled={loading}
+                >Order</button>
+              </div>
+            </div>
           ))}
-        </select>
-      </label>
-    </div>
-    <div style={{ margin: "10px 0 8px", width: "92%" }}>
-      <label>
-        Text size:&nbsp;
-        <input
-          type="range"
-          min="1"
-          max="4"
-          step="0.05"
-          value={fontSize}
-          onChange={e => setFontSize(Number(e.target.value))}
-          style={{ width: "140px", verticalAlign: "middle" }}
-        />
-        &nbsp;<b>{fontSize}em</b>
-      </label>
-    </div>
-  </>
-)}
-
-        {/* Initial instructions */}
-        {!imageUrl && !error && !loading && (
-          <div className="ai-instructions">
-            Enter a prompt above and hit <b>Generate Image</b>!
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

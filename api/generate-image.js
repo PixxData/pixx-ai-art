@@ -7,7 +7,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { prompt, size = "1024x1024" } = req.body;
+  // Use default to 4 images if n not supplied
+  const { prompt, size = "1024x1024", n = 4 } = req.body;
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -25,8 +26,8 @@ export default async function handler(req, res) {
       {
         model: "dall-e-3",
         prompt,
-        n: 1,
-        size: size // <-- uses what the user selected!
+        n,         // <---- Pass n (number of images) from client
+        size
       },
       {
         headers: {
@@ -35,12 +36,14 @@ export default async function handler(req, res) {
         }
       }
     );
-    const imageUrl = response.data.data?.[0]?.url;
-    if (!imageUrl) {
-      res.status(500).json({ error: "No image returned from OpenAI" });
+
+    // Map the returned images to URLs
+    const images = (response.data.data || []).map(obj => obj.url).filter(Boolean);
+    if (!images.length) {
+      res.status(500).json({ error: "No images returned from OpenAI" });
       return;
     }
-    res.status(200).json({ imageUrl });
+    res.status(200).json({ images }); // <---- Send as array!
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
