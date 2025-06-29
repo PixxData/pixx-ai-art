@@ -10,10 +10,10 @@ function App() {
 
   // Edit mode states
   const [editing, setEditing] = useState(false);
-  const [saturation, setSaturation] = useState(1);
   const [userText, setUserText] = useState("");
   const [showBg, setShowBg] = useState(true);
   const [fontSize, setFontSize] = useState(2);
+  const [fontFamily, setFontFamily] = useState("Arial, sans-serif");
   const [showTextControls, setShowTextControls] = useState(false);
   // For dragging text
   const [textPos, setTextPos] = useState({ x: 0.5, y: 0.85 });
@@ -24,6 +24,14 @@ function App() {
     landscape: "1792x1024",
     portrait: "1024x1792",
   };
+
+  const fontOptions = [
+    { label: "Arial", value: "Arial, sans-serif" },
+    { label: "Georgia", value: "Georgia, serif" },
+    { label: "Impact", value: "Impact, Charcoal, sans-serif" },
+    { label: "Comic Sans MS", value: "'Comic Sans MS', cursive, sans-serif" },
+    { label: "Courier New", value: "'Courier New', Courier, monospace" }
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,10 +55,10 @@ function App() {
         return;
       }
       setImageUrl(data.imageUrl);
-      setSaturation(1);
       setUserText("");
       setShowTextControls(false);
       setTextPos({ x: 0.5, y: 0.85 });
+      setFontFamily("Arial, sans-serif");
     } catch (err) {
       setError("Network or server error.");
     }
@@ -218,7 +226,6 @@ function App() {
                     height: "100%",
                     objectFit: "contain",
                     borderRadius: "14px",
-                    filter: `saturate(${saturation})`,
                     border: "2px solid #282f4a",
                     background: "#232838",
                     display: "block",
@@ -246,6 +253,7 @@ function App() {
                         color: "#fff",
                         fontWeight: 700,
                         fontSize: `${fontSize}em`,
+                        fontFamily: fontFamily,
                         borderRadius: "14px",
                         boxShadow: showBg ? "0 2px 12px #0005" : "none",
                         textShadow: "1px 2px 12px #0009",
@@ -259,20 +267,6 @@ function App() {
                     </span>
                   </div>
                 )}
-              </div>
-              {/* Saturation slider */}
-              <div style={{ margin: "18px 0 10px" }}>
-                <label>Saturation:&nbsp;</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.01"
-                  value={saturation}
-                  onChange={e => setSaturation(e.target.value)}
-                  style={{ width: "190px" }}
-                />&nbsp;
-                <b>{saturation}</b>
               </div>
               {/* Add Text button / controls */}
               {!showTextControls && (
@@ -305,7 +299,7 @@ function App() {
                       display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
                     }}
                   />
-                  <div style={{ marginTop: "2px", marginBottom: "10px", display: "flex", gap: "24px", justifyContent: "center" }}>
+                  <div style={{ margin: "6px 0 8px", display: "flex", gap: "24px", justifyContent: "center" }}>
                     <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
                       <input
                         type="checkbox"
@@ -314,6 +308,22 @@ function App() {
                         style={{ marginRight: "7px" }}
                       />
                       Text background
+                    </label>
+                    <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+                      Font:&nbsp;
+                      <select
+                        value={fontFamily}
+                        onChange={e => setFontFamily(e.target.value)}
+                        style={{
+                          fontSize: "1em",
+                          borderRadius: "7px",
+                          padding: "2px 10px",
+                        }}
+                      >
+                        {fontOptions.map(opt => (
+                          <option value={opt.value} key={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
                     </label>
                   </div>
                   <div style={{ margin: "10px 0 8px", width: "92%" }}>
