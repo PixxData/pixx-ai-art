@@ -271,96 +271,62 @@ function App() {
                   Add Text
                 </button>
               )}
-              {showTextControls && (
-                <>
-                  <input
-                    type="text"
-                    value={userText}
-                    placeholder="Type text to add to your image"
-                    onChange={e => setUserText(e.target.value)}
-                    style={{
-                      margin: "14px auto 6px", fontSize: "1.2em", width: "80%",
-                      display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
-                    }}
-                  />
-                  <div style={{ margin: "6px 0 8px", display: "flex", gap: "24px", justifyContent: "center" }}>
-                    <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
-                      <input
-                        type="checkbox"
-                        checked={showBg}
-                        onChange={() => setShowBg(v => !v)}
-                        style={{ marginRight: "7px" }}
-                      />
-                      Text background
-                    </label>
-                    <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
-                      Font:&nbsp;
-                      <select
-                        value={fontFamily}
-                        onChange={e => setFontFamily(e.target.value)}
-                        style={{
-                          fontSize: "1em",
-                          borderRadius: "7px",
-                          padding: "2px 10px",
-                        }}
-                      >
-                        {fontOptions.map(opt => (
-                          <option value={opt.value} key={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                  <div style={{ margin: "10px 0 8px", width: "92%" }}>
-                    <label>
-                      Text size:&nbsp;
-                      <input
-                        type="range"
-                        min="1"
-                        max="4"
-                        step="0.05"
-                        value={fontSize}
-                        onChange={e => setFontSize(Number(e.target.value))}
-                        style={{ width: "140px", verticalAlign: "middle" }}
-                      />
-                      &nbsp;<b>{fontSize}em</b>
-                    </label>
-                  </div>
-                  <button
-                    style={{
-                      margin: "8px 0 0 0",
-                      padding: "6px 20px",
-                      background: "#888ea5",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "7px",
-                      fontSize: "1em",
-                      cursor: "pointer"
-                    }}
-                    onClick={() => { setUserText(""); setShowTextControls(false); }}
-                    type="button"
-                  >
-                </>
-              )}
-              <button
-                style={{
-                  marginTop: "18px",
-                  padding: "10px 32px",
-                  background: "#0094dd",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontSize: "1.08em",
-                  cursor: "pointer",
-                  fontWeight: 500,
-                  boxShadow: "0 1px 10px #0001"
-                }}
-                onClick={() => setEditing(false)}
-              >
-                Done Editing
-              </button>
-            </div>
-          </div>
-        )}
+{showTextControls && (
+  <>
+    <input
+      type="text"
+      value={userText}
+      placeholder="Type text to add to your image"
+      onChange={e => setUserText(e.target.value)}
+      style={{
+        margin: "14px auto 6px", fontSize: "1.2em", width: "54%",
+        display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
+      }}
+    />
+    <div style={{ margin: "6px 0 8px", display: "flex", gap: "24px", justifyContent: "center" }}>
+      <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+        <input
+          type="checkbox"
+          checked={showBg}
+          onChange={() => setShowBg(v => !v)}
+          style={{ marginRight: "7px" }}
+        />
+        Text background
+      </label>
+      <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+        Font:&nbsp;
+        <select
+          value={fontFamily}
+          onChange={e => setFontFamily(e.target.value)}
+          style={{
+            fontSize: "1em",
+            borderRadius: "7px",
+            padding: "2px 10px",
+          }}
+        >
+          {fontOptions.map(opt => (
+            <option value={opt.value} key={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </label>
+    </div>
+    <div style={{ margin: "10px 0 8px", width: "92%" }}>
+      <label>
+        Text size:&nbsp;
+        <input
+          type="range"
+          min="1"
+          max="4"
+          step="0.05"
+          value={fontSize}
+          onChange={e => setFontSize(Number(e.target.value))}
+          style={{ width: "140px", verticalAlign: "middle" }}
+        />
+        &nbsp;<b>{fontSize}em</b>
+      </label>
+    </div>
+  </>
+)}
 
         {/* Initial instructions */}
         {!imageUrl && !error && !loading && (
