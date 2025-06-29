@@ -8,59 +8,21 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [shape, setShape] = useState("landscape");
 
-  // Edit modal states
+  // Edit mode states
   const [editing, setEditing] = useState(false);
   const [saturation, setSaturation] = useState(1);
   const [userText, setUserText] = useState("");
   const [showBg, setShowBg] = useState(true);
-  const [fontSize, setFontSize] = useState(2.1);
-
-  // Drag states
-  const [textPos, setTextPos] = useState({ x: 0.5, y: 0.85 }); // % (0-1)
-  const dragStart = useRef({ x: 0, y: 0 });
-  const dragging = useRef(false);
+  const [fontSize, setFontSize] = useState(2);
+  const [showTextControls, setShowTextControls] = useState(false);
+  // For dragging text
+  const [textPos, setTextPos] = useState({ x: 0.5, y: 0.85 });
+  const dragInfo = useRef({ dragging: false, offsetX: 0, offsetY: 0 });
 
   const sizeOptions = {
     square: "1024x1024",
     landscape: "1792x1024",
     portrait: "1024x1792",
-  };
-
-  // Drag logic
-  const handleTextMouseDown = (e) => {
-    dragging.current = true;
-    const img = document.getElementById("edit-img");
-    const rect = img.getBoundingClientRect();
-    dragStart.current = {
-      offsetX: e.clientX - (rect.left + textPos.x * rect.width),
-      offsetY: e.clientY - (rect.top + textPos.y * rect.height),
-      imgRect: rect,
-    };
-    document.addEventListener("mousemove", handleTextMouseMove);
-    document.addEventListener("mouseup", handleTextMouseUp);
-  };
-
-  const handleTextMouseMove = (e) => {
-    if (!dragging.current) return;
-    const { imgRect, offsetX, offsetY } = dragStart.current;
-    const relX = e.clientX - imgRect.left - offsetX;
-    const relY = e.clientY - imgRect.top - offsetY;
-    setTextPos({
-      x: Math.min(Math.max(relX / imgRect.width, 0), 1),
-      y: Math.min(Math.max(relY / imgRect.height, 0), 1),
-    });
-  };
-
-  const handleTextMouseUp = () => {
-    dragging.current = false;
-    document.removeEventListener("mousemove", handleTextMouseMove);
-    document.removeEventListener("mouseup", handleTextMouseUp);
-  };
-
-  // Reset text position if user clears or regenerates image
-  const handleEditOpen = () => {
-    setEditing(true);
-    setTextPos({ x: 0.5, y: 0.85 });
   };
 
   const handleSubmit = async (e) => {
@@ -69,7 +31,6 @@ function App() {
     setError("");
     setLoading(true);
     setEditing(false);
-
     try {
       const res = await fetch("/api/generate-image", {
         method: "POST",
@@ -79,23 +40,62 @@ function App() {
           size: sizeOptions[shape],
         }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || "Error generating image.");
         setLoading(false);
         return;
       }
-
       setImageUrl(data.imageUrl);
       setSaturation(1);
       setUserText("");
-      setFontSize(2.1);
+      setShowTextControls(false);
+      setTextPos({ x: 0.5, y: 0.85 });
     } catch (err) {
       setError("Network or server error.");
     }
     setLoading(false);
+  };
+
+  // --- Drag to move the text overlay ---
+  const handleMouseDown = (e) => {
+    if (!editing || !showTextControls) return;
+    dragInfo.current.dragging = true;
+    const rect = e.target.parentElement.getBoundingClientRect();
+    dragInfo.current.offsetX = e.clientX - (rect.left + rect.width * textPos.x);
+    dragInfo.current.offsetY = e.clientY - (rect.top + rect.height * textPos.y);
+    document.body.style.userSelect = "none";
+  };
+  const handleMouseMove = (e) => {
+    if (!dragInfo.current.dragging) return;
+    const container = document.getElementById("edit-img-wrap");
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    let x = (e.clientX - rect.left - dragInfo.current.offsetX) / rect.width;
+    let y = (e.clientY - rect.top - dragInfo.current.offsetY) / rect.height;
+    x = Math.min(Math.max(x, 0), 1);
+    y = Math.min(Math.max(y, 0), 1);
+    setTextPos({ x, y });
+  };
+  const handleMouseUp = () => {
+    dragInfo.current.dragging = false;
+    document.body.style.userSelect = "";
+  };
+  React.useEffect(() => {
+    if (!editing || !showTextControls) return;
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+    // eslint-disable-next-line
+  }, [editing, showTextControls, textPos]);
+
+  const handleEditOpen = () => {
+    setEditing(true);
+    setShowTextControls(false);
+    setTextPos({ x: 0.5, y: 0.85 });
   };
 
   return (
@@ -120,7 +120,6 @@ function App() {
             <option value="landscape">Landscape</option>
             <option value="portrait">Portrait</option>
           </select>
-
           <input
             className="ai-prompt-input"
             type="text"
@@ -147,10 +146,7 @@ function App() {
           <div>
             <div className="ai-image-card">
               <img className="ai-result-img" src={imageUrl} alt="AI Result" />
-              <div className="ai-img-footer">{prompt}</div>
-              <div className="ai-img-footer" style={{ fontSize: "0.95em", color: "#999" }}>
-                Shape: {shape.charAt(0).toUpperCase() + shape.slice(1)}
-              </div>
+              {/* No text below image */}
             </div>
             <button
               className="ai-edit-btn"
@@ -182,14 +178,15 @@ function App() {
           }}>
             <div style={{
               background: "#232838",
-              padding: "20px 12px 16px",
-              borderRadius: "22px",
-              boxShadow: "0 10px 60px #000a",
+              padding: "20px 10px 16px",
+              borderRadius: "20px",
+              boxShadow: "0 10px 60px #0009",
               textAlign: "center",
               maxWidth: "96vw",
               width: "100%",
               margin: "0",
               color: "#eaf1fa",
+              minHeight: "auto",
               maxHeight: "95vh",
               overflow: "hidden",
               display: "flex",
@@ -197,43 +194,55 @@ function App() {
               alignItems: "center",
               justifyContent: "center"
             }}>
-              <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              {/* Edit Image Display, with draggable text */}
+              <div
+                id="edit-img-wrap"
+                style={{
+                  position: "relative",
+                  display: "inline-block",
+                  width: "min(92vw, 1000px)",
+                  height: "auto",
+                  maxHeight: "70vh",
+                  aspectRatio: shape === "portrait" ? "9/16"
+                    : shape === "landscape" ? "16/9" : "1/1",
+                  background: "#1a1c26",
+                  overflow: "hidden",
+                  margin: "0 auto"
+                }}
+              >
                 <img
                   src={imageUrl}
                   alt="Editable AI result"
-                  id="edit-img"
                   style={{
                     width: "100%",
-                    maxWidth: "calc(95vw - 48px)",
-                    maxHeight: "70vh",
+                    height: "100%",
+                    objectFit: "contain",
                     borderRadius: "14px",
                     filter: `saturate(${saturation})`,
                     border: "2px solid #282f4a",
                     background: "#232838",
-                    objectFit: "contain",
-                    display: "block"
+                    display: "block",
                   }}
                 />
-                {/* Show text OVER image (DRAGGABLE!) */}
-                {userText && (
+                {/* Draggable text overlay */}
+                {showTextControls && userText && (
                   <div
                     style={{
                       position: "absolute",
                       left: `${textPos.x * 100}%`,
                       top: `${textPos.y * 100}%`,
-                      transform: "translate(-50%,-50%)",
-                      pointerEvents: "auto",
+                      transform: "translate(-50%, -50%)",
                       cursor: "move",
+                      zIndex: 20,
                       userSelect: "none",
-                      zIndex: 10,
                     }}
-                    onMouseDown={handleTextMouseDown}
+                    onMouseDown={handleMouseDown}
                   >
                     <span
                       style={{
                         display: "inline-block",
-                        padding: showBg ? "13px 30px" : "0px",
-                        background: showBg ? "rgba(0,0,0,0.62)" : "none",
+                        padding: "13px 30px",
+                        background: showBg ? "rgba(0,0,0,0.62)" : "transparent",
                         color: "#fff",
                         fontWeight: 700,
                         fontSize: `${fontSize}em`,
@@ -243,7 +252,7 @@ function App() {
                         wordBreak: "break-word",
                         maxWidth: "95%",
                         overflowWrap: "break-word",
-                        pointerEvents: "none", // so only parent handles mouse events
+                        pointerEvents: "none"
                       }}
                     >
                       {userText}
@@ -251,12 +260,13 @@ function App() {
                   </div>
                 )}
               </div>
-              <div style={{ margin: "18px 0 10px", width: "96%" }}>
+              {/* Saturation slider */}
+              <div style={{ margin: "18px 0 10px" }}>
                 <label>Saturation:&nbsp;</label>
                 <input
                   type="range"
                   min="0"
-                  max="3"
+                  max="2"
                   step="0.01"
                   value={saturation}
                   onChange={e => setSaturation(e.target.value)}
@@ -264,61 +274,93 @@ function App() {
                 />&nbsp;
                 <b>{saturation}</b>
               </div>
-
-              {/* Text input */}
-              <input
-                type="text"
-                value={userText}
-                placeholder="Type text to add to your image"
-                onChange={e => setUserText(e.target.value)}
-                style={{
-                  margin: "14px auto 6px", fontSize: "1.2em", width: "92%",
-                  display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
-                }}
-              />
-
-              {/* Toggle: Background */}
-              <div style={{ marginTop: "2px", marginBottom: "10px", display: "flex", gap: "24px", justifyContent: "center" }}>
-                <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+              {/* Add Text button / controls */}
+              {!showTextControls && (
+                <button
+                  style={{
+                    margin: "14px 0 8px",
+                    padding: "8px 22px",
+                    background: "#444d66",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "9px",
+                    fontSize: "1em",
+                    cursor: "pointer"
+                  }}
+                  onClick={() => setShowTextControls(true)}
+                  type="button"
+                >
+                  Add Text
+                </button>
+              )}
+              {showTextControls && (
+                <>
                   <input
-                    type="checkbox"
-                    checked={showBg}
-                    onChange={() => setShowBg(v => !v)}
-                    style={{ marginRight: "7px" }}
+                    type="text"
+                    value={userText}
+                    placeholder="Type text to add to your image"
+                    onChange={e => setUserText(e.target.value)}
+                    style={{
+                      margin: "14px auto 6px", fontSize: "1.2em", width: "92%",
+                      display: "block", padding: "10px", borderRadius: "10px", border: "1.3px solid #bbb"
+                    }}
                   />
-                  Text background
-                </label>
-              </div>
-
-              {/* Text size slider */}
-              <div style={{ margin: "10px 0 8px", width: "92%" }}>
-                <label>
-                  Text size:&nbsp;
-                  <input
-                    type="range"
-                    min="1"
-                    max="4"
-                    step="0.05"
-                    value={fontSize}
-                    onChange={e => setFontSize(Number(e.target.value))}
-                    style={{ width: "140px", verticalAlign: "middle" }}
-                  />
-                  &nbsp;<b>{fontSize}em</b>
-                </label>
-              </div>
-
+                  <div style={{ marginTop: "2px", marginBottom: "10px", display: "flex", gap: "24px", justifyContent: "center" }}>
+                    <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
+                      <input
+                        type="checkbox"
+                        checked={showBg}
+                        onChange={() => setShowBg(v => !v)}
+                        style={{ marginRight: "7px" }}
+                      />
+                      Text background
+                    </label>
+                  </div>
+                  <div style={{ margin: "10px 0 8px", width: "92%" }}>
+                    <label>
+                      Text size:&nbsp;
+                      <input
+                        type="range"
+                        min="1"
+                        max="4"
+                        step="0.05"
+                        value={fontSize}
+                        onChange={e => setFontSize(Number(e.target.value))}
+                        style={{ width: "140px", verticalAlign: "middle" }}
+                      />
+                      &nbsp;<b>{fontSize}em</b>
+                    </label>
+                  </div>
+                  <button
+                    style={{
+                      margin: "8px 0 0 0",
+                      padding: "6px 20px",
+                      background: "#888ea5",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "7px",
+                      fontSize: "1em",
+                      cursor: "pointer"
+                    }}
+                    onClick={() => { setUserText(""); setShowTextControls(false); }}
+                    type="button"
+                  >
+                    Remove Text
+                  </button>
+                </>
+              )}
               <button
                 style={{
-                  marginTop: "17px",
-                  padding: "12px 38px",
+                  marginTop: "18px",
+                  padding: "10px 32px",
                   background: "#0094dd",
                   color: "#fff",
                   border: "none",
-                  borderRadius: "10px",
-                  fontSize: "1.15em",
+                  borderRadius: "8px",
+                  fontSize: "1.08em",
                   cursor: "pointer",
-                  fontWeight: 600,
-                  boxShadow: "0 1px 14px #0002"
+                  fontWeight: 500,
+                  boxShadow: "0 1px 10px #0001"
                 }}
                 onClick={() => setEditing(false)}
               >
