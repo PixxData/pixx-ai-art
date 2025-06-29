@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { prompt, size = "1024x1024", n = 2 } = req.body; // <-- n defaults to 2
+  const { prompt, size = "1024x1024", n = 2 } = req.body;
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -24,8 +24,8 @@ export default async function handler(req, res) {
       {
         model: "dall-e-3",
         prompt,
-        n,      // <--- number of images
-        size    // <--- size passed from the frontend
+        n,
+        size
       },
       {
         headers: {
@@ -42,6 +42,8 @@ export default async function handler(req, res) {
     }
     res.status(200).json({ images });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    // ADD this for debugging in Vercel logs
+    console.error("OpenAI error:", err.response?.data || err.message);
+    res.status(500).json({ error: err.response?.data?.error?.message || err.message });
   }
 }

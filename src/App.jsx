@@ -40,10 +40,11 @@ function App() {
       const res = await fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          size: sizeOptions[shape],
-        }),
+body: JSON.stringify({
+  prompt,
+  size: sizeOptions[shape],
+  n: 2,    // <--- tell backend to generate 2 images!
+}),
       });
       const data = await res.json();
 
