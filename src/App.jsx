@@ -25,13 +25,14 @@ function App() {
     portrait: "1024x1792",
   };
 
-  const fontOptions = [
-    { label: "Arial", value: "Arial, sans-serif" },
-    { label: "Georgia", value: "Georgia, serif" },
-    { label: "Impact", value: "Impact, Charcoal, sans-serif" },
-    { label: "Comic Sans MS", value: "'Comic Sans MS', cursive, sans-serif" },
-    { label: "Courier New", value: "'Courier New', Courier, monospace" }
-  ];
+const fontOptions = [
+  { label: "Arial", value: "Arial, sans-serif" },
+  { label: "Georgia", value: "Georgia, serif" },
+  { label: "Impact", value: "Impact, Charcoal, sans-serif" },
+  { label: "Dancing Script", value: "'Dancing Script', cursive" },      // <-- Modern script
+  { label: "Lato Thin", value: "'Lato', Arial, sans-serif" },           // <-- Thin font
+  { label: "Courier New", value: "'Courier New', Courier, monospace" }
+];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
