@@ -13,7 +13,6 @@ function App() {
   const [saturation, setSaturation] = useState(1);
   const [userText, setUserText] = useState("");
   const [showBg, setShowBg] = useState(true);
-  const [fontSize, setFontSize] = useState(2.1);
 
   // Drag states
   const [textPos, setTextPos] = useState({ x: 0.5, y: 0.85 }); // % (0-1)
@@ -91,7 +90,6 @@ function App() {
       setImageUrl(data.imageUrl);
       setSaturation(1);
       setUserText("");
-      setFontSize(2.1);
     } catch (err) {
       setError("Network or server error.");
     }
@@ -236,7 +234,7 @@ function App() {
                         background: showBg ? "rgba(0,0,0,0.62)" : "none",
                         color: "#fff",
                         fontWeight: 700,
-                        fontSize: `${fontSize}em`,
+                        fontSize: "2.1em",
                         borderRadius: "14px",
                         boxShadow: showBg ? "0 2px 12px #0005" : "none",
                         textShadow: "1px 2px 12px #0009",
@@ -278,7 +276,7 @@ function App() {
               />
 
               {/* Toggle: Background */}
-              <div style={{ marginTop: "2px", marginBottom: "10px", display: "flex", gap: "24px", justifyContent: "center" }}>
+              <div style={{ marginTop: "2px", marginBottom: "12px", display: "flex", gap: "24px", justifyContent: "center" }}>
                 <label style={{ color: "#eaf1fa", fontSize: "1em" }}>
                   <input
                     type="checkbox"
@@ -287,23 +285,6 @@ function App() {
                     style={{ marginRight: "7px" }}
                   />
                   Text background
-                </label>
-              </div>
-
-              {/* Text size slider */}
-              <div style={{ margin: "10px 0 8px", width: "92%" }}>
-                <label>
-                  Text size:&nbsp;
-                  <input
-                    type="range"
-                    min="1"
-                    max="4"
-                    step="0.05"
-                    value={fontSize}
-                    onChange={e => setFontSize(Number(e.target.value))}
-                    style={{ width: "140px", verticalAlign: "middle" }}
-                  />
-                  &nbsp;<b>{fontSize}em</b>
                 </label>
               </div>
 
