@@ -102,10 +102,6 @@ function App() {
           <div>
             <div className="ai-image-card">
               <img className="ai-result-img" src={imageUrl} alt="AI Result" />
-              <div className="ai-img-footer">{prompt}</div>
-              <div className="ai-img-footer" style={{fontSize: "0.95em", color: "#999"}}>
-                Shape: {shape.charAt(0).toUpperCase() + shape.slice(1)}
-              </div>
             </div>
             <button
               className="ai-edit-btn"
@@ -137,38 +133,38 @@ function App() {
   }}>
     <div style={{
       background: "#232838",
-      padding: "22px 14px 16px",
+      padding: "20px 10px 16px",
       borderRadius: "20px",
       boxShadow: "0 10px 60px #0009",
       textAlign: "center",
-      maxWidth: "430px",
-      width: "98vw",
+      maxWidth: "96vw",
+      width: "100%",
       margin: "0",
       color: "#eaf1fa",
       minHeight: "auto",
-      maxHeight: "97vh",
-      overflow: "hidden"
+      maxHeight: "95vh",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center"
     }}>
-      <h2 style={{color:"#60c0ff",marginBottom:"13px"}}>Edit Your Image</h2>
       <img
         src={imageUrl}
         alt="Editable AI result"
         style={{
           width: "100%",
-          maxWidth: "400px",
-          maxHeight: "280px",
-          borderRadius: "13px",
+          maxWidth: "calc(95vw - 48px)",
+          maxHeight: "70vh",
+          borderRadius: "14px",
           filter: `saturate(${saturation})`,
-          marginBottom: "14px",
           border: "2px solid #282f4a",
           background: "#232838",
           objectFit: "contain",
-          display: "block",
-          marginLeft: "auto",
-          marginRight: "auto"
+          display: "block"
         }}
       />
-      <div style={{margin:"14px 0"}}>
+      <div style={{margin:"18px 0 10px"}}>
         <label>Saturation:&nbsp;</label>
         <input
           type="range"
@@ -177,45 +173,19 @@ function App() {
           step="0.01"
           value={saturation}
           onChange={e => setSaturation(e.target.value)}
-          style={{ width: "165px" }}
+          style={{ width: "190px" }}
         />&nbsp;
         <b>{saturation}</b>
       </div>
-      <input
-        type="text"
-        value={userText}
-        placeholder="Type text to add..."
-        onChange={e => setUserText(e.target.value)}
-        style={{
-          margin: "9px auto 0", fontSize: "1em", width: "90%",
-          display: "block", padding: "8px", borderRadius: "8px",
-          border: "1.2px solid #2d354a", background: "#232838", color: "#eaf1fa"
-        }}
-      />
-      <div
-        style={{
-          color: "#eaf1fa",
-          background: "#282f4a",
-          margin: "17px auto 0",
-          maxWidth: "90vw",
-          minHeight: "25px",
-          padding: "8px 14px",
-          borderRadius: "9px",
-          fontSize: "1.07em",
-          boxShadow: "0 2px 10px #0001"
-        }}
-      >
-        {userText}
-      </div>
       <button
         style={{
-          marginTop: "23px",
-          padding: "8px 22px",
+          marginTop: "5px",
+          padding: "10px 32px",
           background: "#0094dd",
           color: "#fff",
           border: "none",
           borderRadius: "8px",
-          fontSize: "1em",
+          fontSize: "1.08em",
           cursor: "pointer",
           fontWeight: 500,
           boxShadow: "0 1px 10px #0001"
