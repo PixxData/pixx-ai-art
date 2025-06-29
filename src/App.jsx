@@ -43,7 +43,7 @@ function App() {
 body: JSON.stringify({
   prompt,
   size: sizeOptions[shape],
-  n: 2,    // <--- tell backend to generate 2 images!
+  count: 2,
 }),
       });
       const data = await res.json();

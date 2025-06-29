@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { prompt, size = "1024x1024", n = 2 } = req.body;
+  const { prompt, size = "1024x1024", count = 2 } = req.body;
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -19,31 +19,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/images/generations",
-      {
-        model: "dall-e-3",
-        prompt,
-        n,
-        size
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
+    const images = [];
+    for (let i = 0; i < count; i++) {
+      const response = await axios.post(
+        "https://api.openai.com/v1/images/generations",
+        {
+          model: "dall-e-3",
+          prompt,
+          size,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`,
+          }
         }
-      }
-    );
-
-    const images = response.data.data?.map(d => d.url).filter(Boolean) || [];
+      );
+      const url = response.data.data?.[0]?.url;
+      if (url) images.push(url);
+    }
     if (!images.length) {
       res.status(500).json({ error: "No images returned from OpenAI" });
       return;
     }
     res.status(200).json({ images });
   } catch (err) {
-    // ADD this for debugging in Vercel logs
-    console.error("OpenAI error:", err.response?.data || err.message);
-    res.status(500).json({ error: err.response?.data?.error?.message || err.message });
+    res.status(500).json({ error: err.message });
   }
 }
