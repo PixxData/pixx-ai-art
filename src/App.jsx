@@ -3,7 +3,7 @@ import "./App.css";
 
 const PRODUCT_URLS = {
   print: "https://aiacm.netlify.app",
-  paper: "https://www.pixximaging.com/photo-prints-calgary",
+  paper: "https://aipaper.netlify.app",
   framed: "https://aiframing.netlify.app"
 };
 
