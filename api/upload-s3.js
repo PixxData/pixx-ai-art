@@ -61,7 +61,6 @@ const fileName = `uploads/${Date.now()}_${Math.floor(Math.random() * 999999)}.jp
         Key: fileName,
         Body: buffer,
         ContentType: "image/jpeg",
-        ACL: "public-read",
       })
     );
 
