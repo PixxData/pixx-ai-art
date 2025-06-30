@@ -52,38 +52,34 @@ function App() {
   };
 
   // Product Order
-  const handleOrderConfirm = async (idx, product) => {
-    const imgUrl = images[idx];
-    if (!product) {
-      alert("Please select a product type.");
-      return;
-    }
-    setLoading(true);
+const handleOrderConfirm = async (idx, product) => {
+  const imgUrl = images[idx];
+  setLoading(true);
 
-    try {
-      // Upload image to S3 via your backend endpoint (replace with your code!)
-      const uploadRes = await fetch("/api/upload-s3", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: imgUrl }),
-      });
-      const uploadData = await uploadRes.json();
+  try {
+    // Upload to S3 via API route
+    const uploadRes = await fetch("/api/upload-s3", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: imgUrl }),
+    });
+    const uploadData = await uploadRes.json();
 
-      if (!uploadRes.ok || !uploadData.s3Url) {
-        throw new Error(uploadData.error || "Upload failed");
-      }
+    if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
-      // Redirect to correct order app with s3Url as parameter
-      let orderUrl = PRODUCT_URLS[product];
-      if (orderUrl) {
-        orderUrl += `?img=${encodeURIComponent(uploadData.s3Url)}`;
-        window.open(orderUrl, "_blank");
-      }
-    } catch (e) {
-      alert("Error uploading image: " + e.message);
-    }
-    setLoading(false);
-  };
+    // Build the URL for your next app
+    let orderUrl = "";
+    if (product === "print") orderUrl = `https://YOUR-APP-PRINT.com?img=${encodeURIComponent(uploadData.s3Url)}`;
+    if (product === "paper") orderUrl = `https://YOUR-APP-PAPER.com?img=${encodeURIComponent(uploadData.s3Url)}`;
+    if (product === "framed") orderUrl = `https://YOUR-APP-FRAMED.com?img=${encodeURIComponent(uploadData.s3Url)}`;
+
+    // Redirect!
+    window.open(orderUrl, "_blank");
+  } catch (e) {
+    alert("Error uploading image: " + e.message);
+  }
+  setLoading(false);
+};
 
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
