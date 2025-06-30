@@ -98,8 +98,8 @@ function App() {
           style={{
 <div
   style={{
-    width: "98vw",  // More screen width
-    height: "97vh", // More screen height
+    width: "99vw",  // More screen width
+    height: "99vh", // More screen height
     background: "#181c22",
     borderRadius: 20,
     overflow: "hidden",
