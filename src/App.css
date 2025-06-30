@@ -136,24 +136,3 @@ h1 {
   color: #a9c8ecbb;
   font-size: 1.09em;
 }
-/* Make the modal/lightbox as large as the screen, with soft rounded corners */
-.modal-content {
-  width: 98vw !important;
-  height: 97vh !important;
-  max-width: none !important;
-  max-height: none !important;
-  margin: 0 !important;
-  border-radius: 18px !important;
-  padding: 0 !important;
-  background: #111 !important;
-  box-shadow: 0 0 32px #0007 !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.modal-content iframe {
-  width: 100% !important;
-  height: 100% !important;
-  border: none !important;
-  background: #222 !important;
-}
