@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 
 const PRODUCT_URLS = {
-  print: "https://www.pixximaging.com/metal-prints-calgary",
+  print: "https://aiacm.netlify.app",
   paper: "https://www.pixximaging.com/photo-prints-calgary",
   framed: "https://aiframing.netlify.app"
 };
