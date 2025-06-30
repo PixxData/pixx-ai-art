@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       {
         model: "dall-e-3",
         prompt,
-        n: 1,      // Only 1 image at a time
+        n: 1,          // <<<<<< ONLY 1 ALLOWED FOR DALL-E 3
         size
       },
       {
