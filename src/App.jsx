@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import "./App.css";
 
 const PRODUCT_URLS = {
-  print: "https://YOUR-APP-PRINT.com",
-  paper: "https://YOUR-APP-PAPER.com",
-  framed: "https://YOUR-APP-FRAMED.com"
+  print: "https://www.pixximaging.com/metal-prints-calgary",
+  paper: "https://www.pixximaging.com/photo-prints-calgary",
+  framed: "https://www.pixximaging.com/picture-framing-calgary"
 };
 
 function App() {
