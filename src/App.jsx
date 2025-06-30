@@ -96,12 +96,18 @@ function App() {
       >
         <div
           style={{
-            width: "90vw", height: "90vh", background: "#181c22",
-            borderRadius: 14, overflow: "hidden", position: "relative",
-            boxShadow: "0 10px 64px #000c"
-          }}
-          onClick={e => e.stopPropagation()}
-        >
+<div
+  style={{
+    width: "98vw",  // More screen width
+    height: "97vh", // More screen height
+    background: "#181c22",
+    borderRadius: 20,
+    overflow: "hidden",
+    position: "relative",
+    boxShadow: "0 10px 64px #000c"
+  }}
+  onClick={e => e.stopPropagation()}
+>
           <button
             onClick={() => setModalOpen(false)}
             style={{
