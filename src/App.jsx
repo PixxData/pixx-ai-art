@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import "./App.css";
 
-const PRODUCT_OPTIONS = [
-  { label: "Acrylic, Metal, Stretched Canvas", value: "print" },
-  { label: "Paper print", value: "paper" },
-  { label: "Framed print", value: "framed" },
-];
+const PRODUCT_URLS = {
+  print: "https://YOUR-APP-PRINT.com",
+  paper: "https://YOUR-APP-PAPER.com",
+  framed: "https://YOUR-APP-FRAMED.com"
+};
 
 function App() {
   const [prompt, setPrompt] = useState("");
@@ -13,8 +13,6 @@ function App() {
   const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [orderIdx, setOrderIdx] = useState(null);   // which image is being ordered
-  const [orderProduct, setOrderProduct] = useState({});
 
   const sizeOptions = {
     square: "1024x1024",
@@ -22,55 +20,40 @@ function App() {
     vertical: "1024x1792",
   };
 
-  // Product URLs
-  const PRODUCT_URLS = {
-    print: "https://YOUR-APP-PRINT.com",
-    paper: "https://YOUR-APP-PAPER.com",
-    framed: "https://YOUR-APP-FRAMED.com"
-  };
-
-  // Generate images
   const handleSubmit = async (e) => {
     e.preventDefault();
     setImages([]);
     setError("");
     setLoading(true);
 
+    // Generate 2 images, 2 API calls (DALL-E 3 only allows n:1)
     try {
-      const res = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-  prompt,
-  size: sizeOptions[shape],
-  count: 2,
-}),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Error generating images.");
-        setLoading(false);
-        return;
+      const results = [];
+      for (let i = 0; i < 2; i++) {
+        const res = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt,
+            size: sizeOptions[shape],
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.imageUrl) {
+          throw new Error(data.error || "Error generating image.");
+        }
+        results.push(data.imageUrl);
       }
-
-      setImages(data.images || []);
-      setOrderIdx(null);
-      setOrderProduct({});
+      setImages(results);
     } catch (err) {
-      setError("Network or server error.");
+      setError(err.message || "Network or server error.");
     }
     setLoading(false);
   };
 
-  // Order flow
-  const handleOrder = (idx) => {
-    setOrderIdx(idx);
-  };
-
-  const handleOrderConfirm = async (idx) => {
+  // Product Order
+  const handleOrderConfirm = async (idx, product) => {
     const imgUrl = images[idx];
-    const product = orderProduct[idx];
     if (!product) {
       alert("Please select a product type.");
       return;
@@ -96,14 +79,12 @@ body: JSON.stringify({
         orderUrl += `?img=${encodeURIComponent(uploadData.s3Url)}`;
         window.open(orderUrl, "_blank");
       }
-      setOrderIdx(null);
     } catch (e) {
       alert("Error uploading image: " + e.message);
     }
     setLoading(false);
   };
 
-  // UI layout
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
       <div className="ai-app-container" style={{ display: "flex", alignItems: "flex-start", maxWidth: "100vw", width: "100vw", margin: "0 auto", gap: "60px" }}>
@@ -156,7 +137,7 @@ body: JSON.stringify({
             </div>
           )}
         </div>
-        {/* Image Grid, fill right */}
+        {/* Image Grid */}
         <div style={{
           flex: 1,
           display: "grid",
@@ -188,89 +169,70 @@ body: JSON.stringify({
                   width: "100%",
                   height: "min(34vw,650px)",
                   objectFit: "contain",
-                  borderRadius: "2px",   // <--- 2px radius for the image
+                  borderRadius: "2px",
                   background: "#000"
                 }}
               />
-              <div style={{ margin: "24px 0 0 0" }}>
-                {/* Order Button triggers dropdown */}
-{orderIdx !== idx ? (
-  <button
-    style={{
-      width: "100%",
-      padding: "13px 0",
-      borderRadius: "9px",
-      background: "#0094dd",
-      color: "#fff",
-      border: "none",
-      fontWeight: 700,
-      cursor: "pointer",
-      fontSize: "1.12em",
-      letterSpacing: "0.02em",
-      marginTop: "12px"
-    }}
-    onClick={() => handleOrder(idx)}
-    disabled={loading}
-  >Order</button>
-) : (
-  <div style={{ marginTop: "8px", display: "flex", gap: "14px", flexWrap: "wrap", justifyContent: "center" }}>
-    <button
-      style={{
-        padding: "10px 14px",
-        borderRadius: "7px",
-        background: "#2188d7",
-        color: "#fff",
-        border: "none",
-        fontWeight: 700,
-        cursor: "pointer",
-        fontSize: "1em"
-      }}
-      onClick={() => handleOrderConfirm(idx, "print")}
-      disabled={loading}
-    >Acrylic / Metal / Canvas</button>
-    <button
-      style={{
-        padding: "10px 14px",
-        borderRadius: "7px",
-        background: "#5ba150",
-        color: "#fff",
-        border: "none",
-        fontWeight: 700,
-        cursor: "pointer",
-        fontSize: "1em"
-      }}
-      onClick={() => handleOrderConfirm(idx, "paper")}
-      disabled={loading}
-    >Paper Print</button>
-    <button
-      style={{
-        padding: "10px 14px",
-        borderRadius: "7px",
-        background: "#bc6f3e",
-        color: "#fff",
-        border: "none",
-        fontWeight: 700,
-        cursor: "pointer",
-        fontSize: "1em"
-      }}
-      onClick={() => handleOrderConfirm(idx, "framed")}
-      disabled={loading}
-    >Framed Print</button>
-    <button
-      style={{
-        padding: "10px 10px",
-        borderRadius: "7px",
-        background: "#222",
-        color: "#fff",
-        border: "1px solid #444",
-        cursor: "pointer",
-        fontSize: "1em"
-      }}
-      onClick={() => setOrderIdx(null)}
-      type="button"
-    >Cancel</button>
-  </div>
-)}
+              <div style={{ margin: "24px 0 0 0", textAlign: "center" }}>
+                <div style={{
+                  fontWeight: 600,
+                  color: "#d3ecff",
+                  marginBottom: "10px",
+                  letterSpacing: "0.02em",
+                  fontSize: "1.15em"
+                }}>Order:</div>
+                <div style={{
+                  display: "flex",
+                  gap: "11px",
+                  justifyContent: "center",
+                  marginTop: "3px"
+                }}>
+                  <button
+                    style={{
+                      padding: "7px 10px",
+                      borderRadius: "6px",
+                      background: "#2188d7",
+                      color: "#fff",
+                      border: "none",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontSize: "0.95em",
+                      minWidth: "80px"
+                    }}
+                    onClick={() => handleOrderConfirm(idx, "print")}
+                    disabled={loading}
+                  >Acrylic/Metal/Canvas</button>
+                  <button
+                    style={{
+                      padding: "7px 10px",
+                      borderRadius: "6px",
+                      background: "#5ba150",
+                      color: "#fff",
+                      border: "none",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontSize: "0.95em",
+                      minWidth: "80px"
+                    }}
+                    onClick={() => handleOrderConfirm(idx, "paper")}
+                    disabled={loading}
+                  >Paper</button>
+                  <button
+                    style={{
+                      padding: "7px 10px",
+                      borderRadius: "6px",
+                      background: "#bc6f3e",
+                      color: "#fff",
+                      border: "none",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontSize: "0.95em",
+                      minWidth: "80px"
+                    }}
+                    onClick={() => handleOrderConfirm(idx, "framed")}
+                    disabled={loading}
+                  >Framed</button>
+                </div>
               </div>
             </div>
           ))}

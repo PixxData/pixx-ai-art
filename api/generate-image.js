@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { prompt, size = "1024x1024", count = 2 } = req.body;
+  const { prompt, size = "1024x1024" } = req.body;
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -19,30 +19,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    const images = [];
-    for (let i = 0; i < count; i++) {
-      const response = await axios.post(
-        "https://api.openai.com/v1/images/generations",
-        {
-          model: "dall-e-3",
-          prompt,
-          size,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`,
-          }
+    const response = await axios.post(
+      "https://api.openai.com/v1/images/generations",
+      {
+        model: "dall-e-3",
+        prompt,
+        n: 1,      // Only 1 image at a time
+        size
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
         }
-      );
-      const url = response.data.data?.[0]?.url;
-      if (url) images.push(url);
-    }
-    if (!images.length) {
-      res.status(500).json({ error: "No images returned from OpenAI" });
+      }
+    );
+
+    const imageUrl = response.data.data?.[0]?.url;
+    if (!imageUrl) {
+      res.status(500).json({ error: "No image returned from OpenAI" });
       return;
     }
-    res.status(200).json({ images });
+    res.status(200).json({ imageUrl });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
