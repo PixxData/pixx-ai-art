@@ -4,7 +4,7 @@ import "./App.css";
 const PRODUCT_URLS = {
   print: "https://www.pixximaging.com/metal-prints-calgary",
   paper: "https://www.pixximaging.com/photo-prints-calgary",
-  framed: "https://www.pixximaging.com/picture-framing-calgary"
+  framed: "https://aiframing.netlify.app"
 };
 
 function App() {
