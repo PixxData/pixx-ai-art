@@ -1,4 +1,3 @@
-// /api/upload-s3.js
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import fetch from "node-fetch";
 
@@ -8,7 +7,28 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { imageUrl } = req.body;
+  let imageUrl;
+
+  // Parse the body safely
+  try {
+    if (!req.body || typeof req.body === "string") {
+      // Parse raw body
+      let bodyRaw = req.body;
+      if (!bodyRaw) {
+        const chunks = [];
+        for await (const chunk of req) chunks.push(chunk);
+        bodyRaw = Buffer.concat(chunks).toString();
+      }
+      const bodyObj = JSON.parse(bodyRaw);
+      imageUrl = bodyObj.imageUrl;
+    } else {
+      imageUrl = req.body.imageUrl;
+    }
+  } catch (e) {
+    res.status(400).json({ error: "Invalid JSON" });
+    return;
+  }
+
   if (!imageUrl) {
     res.status(400).json({ error: "Missing imageUrl" });
     return;
@@ -17,6 +37,7 @@ export default async function handler(req, res) {
   try {
     // Download the image from the provided URL
     const response = await fetch(imageUrl);
+    if (!response.ok) throw new Error("Failed to fetch image from imageUrl");
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -40,7 +61,7 @@ export default async function handler(req, res) {
         Key: fileName,
         Body: buffer,
         ContentType: "image/jpeg",
-        ACL: "public-read", // So you can display it elsewhere
+        ACL: "public-read",
       })
     );
 
