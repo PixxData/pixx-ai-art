@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     });
 
     // File details
-    const fileName = `ai/${Date.now()}_${Math.floor(Math.random() * 999999)}.jpg`;
+const fileName = `uploads/${Date.now()}_${Math.floor(Math.random() * 999999)}.jpg`;
     const BUCKET = process.env.S3_BUCKET_NAME;
 
     // Upload to S3
