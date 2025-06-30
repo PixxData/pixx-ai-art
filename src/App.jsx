@@ -14,6 +14,10 @@ function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ---- Lightbox/modal state ----
+  const [modalUrl, setModalUrl] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+
   const sizeOptions = {
     square: "1024x1024",
     horizontal: "1792x1024",
@@ -52,31 +56,72 @@ function App() {
   };
 
   // Product Order
-const handleOrderConfirm = async (idx, product) => {
-  const imgUrl = images[idx];
-  setLoading(true);
+  const handleOrderConfirm = async (idx, product) => {
+    const imgUrl = images[idx];
+    setLoading(true);
 
-  try {
-    // Upload to S3 via API route
-    const uploadRes = await fetch("/api/upload-s3", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageUrl: imgUrl }),
-    });
-    const uploadData = await uploadRes.json();
+    try {
+      // Upload to S3 via API route
+      const uploadRes = await fetch("/api/upload-s3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: imgUrl }),
+      });
+      const uploadData = await uploadRes.json();
 
-    if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
+      if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
-    // Build the URL for your next app
-const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}`;
+      // Build the URL for your next app
+      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}`;
 
-    // Redirect!
-    window.open(orderUrl, "_blank");
-  } catch (e) {
-    alert("Error uploading image: " + e.message);
-  }
-  setLoading(false);
-};
+      // -- Open in modal instead of new tab --
+      setModalUrl(orderUrl);
+      setModalOpen(true);
+    } catch (e) {
+      alert("Error uploading image: " + e.message);
+    }
+    setLoading(false);
+  };
+
+  // ---- Modal/lightbox JSX ----
+  const Modal = () => (
+    modalOpen && (
+      <div
+        style={{
+          position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
+          background: "rgba(0,0,0,0.88)", zIndex: 9000, display: "flex",
+          alignItems: "center", justifyContent: "center"
+        }}
+        onClick={() => setModalOpen(false)}
+      >
+        <div
+          style={{
+            width: "90vw", height: "90vh", background: "#181c22",
+            borderRadius: 14, overflow: "hidden", position: "relative",
+            boxShadow: "0 10px 64px #000c"
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          <button
+            onClick={() => setModalOpen(false)}
+            style={{
+              position: "absolute", top: 8, right: 18, zIndex: 2,
+              fontSize: "2em", color: "#fff", background: "none", border: "none",
+              cursor: "pointer", lineHeight: "1em"
+            }}
+            title="Close"
+          >
+            &times;
+          </button>
+          <iframe
+            src={modalUrl}
+            title="Order"
+            style={{ width: "100%", height: "100%", border: "none", background: "#222" }}
+          />
+        </div>
+      </div>
+    )
+  );
 
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
@@ -125,7 +170,7 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
           </form>
           {error && <div className="ai-error-box">{error}</div>}
           {!images.length && !error && !loading && (
-            <div className="ai-instructions" style={{marginTop:"18px"}}>
+            <div className="ai-instructions" style={{ marginTop: "18px" }}>
               Enter a prompt and click <b>Generate</b>!
             </div>
           )}
@@ -231,6 +276,7 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
           ))}
         </div>
       </div>
+      <Modal />
     </div>
   );
 }
