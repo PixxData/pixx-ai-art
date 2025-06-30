@@ -194,74 +194,83 @@ body: JSON.stringify({
               />
               <div style={{ margin: "24px 0 0 0" }}>
                 {/* Order Button triggers dropdown */}
-                {orderIdx !== idx ? (
-                  <button
-                    style={{
-                      width: "100%",
-                      padding: "13px 0",
-                      borderRadius: "9px",
-                      background: "#0094dd",
-                      color: "#fff",
-                      border: "none",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      fontSize: "1.12em",
-                      letterSpacing: "0.02em",
-                      marginTop: "12px"
-                    }}
-                    onClick={() => handleOrder(idx)}
-                    disabled={loading}
-                  >Order</button>
-                ) : (
-                  <div style={{ marginTop: "8px" }}>
-                    <select
-                      value={orderProduct[idx] || ""}
-                      onChange={e => setOrderProduct(prev => ({ ...prev, [idx]: e.target.value }))}
-                      style={{
-                        borderRadius: "7px",
-                        padding: "10px 12px",
-                        fontSize: "1.08em",
-                        marginBottom: "8px",
-                        marginRight: "8px",
-                        width: "70%",
-                        background: "#f7fafd"
-                      }}
-                    >
-                      <option value="">Select product…</option>
-                      {PRODUCT_OPTIONS.map(opt =>
-                        <option value={opt.value} key={opt.value}>{opt.label}</option>
-                      )}
-                    </select>
-                    <button
-                      style={{
-                        padding: "10px 18px",
-                        borderRadius: "7px",
-                        background: "#52b7a7",
-                        color: "#fff",
-                        border: "none",
-                        fontWeight: 700,
-                        cursor: "pointer",
-                        fontSize: "1.05em",
-                        marginRight: "10px"
-                      }}
-                      onClick={() => handleOrderConfirm(idx)}
-                      disabled={loading}
-                    >Confirm Order</button>
-                    <button
-                      style={{
-                        padding: "9px 13px",
-                        borderRadius: "7px",
-                        background: "#222",
-                        color: "#fff",
-                        border: "1px solid #444",
-                        cursor: "pointer",
-                        fontSize: "1em"
-                      }}
-                      onClick={() => setOrderIdx(null)}
-                      type="button"
-                    >Cancel</button>
-                  </div>
-                )}
+{orderIdx !== idx ? (
+  <button
+    style={{
+      width: "100%",
+      padding: "13px 0",
+      borderRadius: "9px",
+      background: "#0094dd",
+      color: "#fff",
+      border: "none",
+      fontWeight: 700,
+      cursor: "pointer",
+      fontSize: "1.12em",
+      letterSpacing: "0.02em",
+      marginTop: "12px"
+    }}
+    onClick={() => handleOrder(idx)}
+    disabled={loading}
+  >Order</button>
+) : (
+  <div style={{ marginTop: "8px", display: "flex", gap: "14px", flexWrap: "wrap", justifyContent: "center" }}>
+    <button
+      style={{
+        padding: "10px 14px",
+        borderRadius: "7px",
+        background: "#2188d7",
+        color: "#fff",
+        border: "none",
+        fontWeight: 700,
+        cursor: "pointer",
+        fontSize: "1em"
+      }}
+      onClick={() => handleOrderConfirm(idx, "print")}
+      disabled={loading}
+    >Acrylic / Metal / Canvas</button>
+    <button
+      style={{
+        padding: "10px 14px",
+        borderRadius: "7px",
+        background: "#5ba150",
+        color: "#fff",
+        border: "none",
+        fontWeight: 700,
+        cursor: "pointer",
+        fontSize: "1em"
+      }}
+      onClick={() => handleOrderConfirm(idx, "paper")}
+      disabled={loading}
+    >Paper Print</button>
+    <button
+      style={{
+        padding: "10px 14px",
+        borderRadius: "7px",
+        background: "#bc6f3e",
+        color: "#fff",
+        border: "none",
+        fontWeight: 700,
+        cursor: "pointer",
+        fontSize: "1em"
+      }}
+      onClick={() => handleOrderConfirm(idx, "framed")}
+      disabled={loading}
+    >Framed Print</button>
+    <button
+      style={{
+        padding: "10px 10px",
+        borderRadius: "7px",
+        background: "#222",
+        color: "#fff",
+        border: "1px solid #444",
+        cursor: "pointer",
+        fontSize: "1em"
+      }}
+      onClick={() => setOrderIdx(null)}
+      type="button"
+    >Cancel</button>
+  </div>
+)}
               </div>
             </div>
           ))}
