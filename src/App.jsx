@@ -68,10 +68,7 @@ const handleOrderConfirm = async (idx, product) => {
     if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
     // Build the URL for your next app
-    let orderUrl = "";
-    if (product === "print") orderUrl = `https://YOUR-APP-PRINT.com?img=${encodeURIComponent(uploadData.s3Url)}`;
-    if (product === "paper") orderUrl = `https://YOUR-APP-PAPER.com?img=${encodeURIComponent(uploadData.s3Url)}`;
-    if (product === "framed") orderUrl = `https://YOUR-APP-FRAMED.com?img=${encodeURIComponent(uploadData.s3Url)}`;
+const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}`;
 
     // Redirect!
     window.open(orderUrl, "_blank");
