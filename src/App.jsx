@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import "./App.css";
 
+// -- Short filename helper --
+function getShortFilename() {
+  // 6-digit number based on seconds (last 6 digits of seconds since 1970)
+  return (Math.floor(Date.now() / 1000) % 1000000).toString().padStart(6, '0') + ".jpg";
+}
+
 const PRODUCT_URLS = {
   print: "https://aiacm.netlify.app",
   paper: "https://aipaper.netlify.app",
@@ -70,8 +76,9 @@ function App() {
 
       if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
-      const promptForFilename = prompt.replace(/[^\w\d-]+/g, "_").slice(0, 60);
-      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&prompt=${encodeURIComponent(promptForFilename)}`;
+      // Generate short 6-digit filename
+      const shortFilename = getShortFilename();
+      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${shortFilename}`;
 
       setModalUrl(orderUrl);
       setModalOpen(true);
