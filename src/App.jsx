@@ -287,66 +287,69 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
                   background: "#000"
                 }}
               />
-              <div style={{ margin: "24px 0 0 0", textAlign: "center" }}>
-                <div style={{
-                  fontWeight: 600,
-                  color: "#d3ecff",
-                  marginBottom: "10px",
-                  letterSpacing: "0.02em",
-                  fontSize: "1.15em"
-                }}>Order:</div>
-                <div style={{
-                  display: "flex",
-                  gap: "11px",
-                  justifyContent: "center",
-                  marginTop: "3px"
-                }}>
-                  <button
-                    style={{
-                      padding: "7px 10px",
-                      borderRadius: "6px",
-                      background: "#2188d7",
-                      color: "#fff",
-                      border: "none",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      fontSize: "0.95em",
-                      minWidth: "80px"
-                    }}
-                    onClick={() => handleOrderConfirm(idx, "print")}
-                    disabled={loading}
-                  >Acrylic/Metal/Canvas</button>
-                  <button
-                    style={{
-                      padding: "7px 10px",
-                      borderRadius: "6px",
-                      background: "#5ba150",
-                      color: "#fff",
-                      border: "none",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      fontSize: "0.95em",
-                      minWidth: "80px"
-                    }}
-                    onClick={() => handleOrderConfirm(idx, "paper")}
-                    disabled={loading}
-                  >Paper</button>
-                  <button
-                    style={{
-                      padding: "7px 10px",
-                      borderRadius: "6px",
-                      background: "#bc6f3e",
-                      color: "#fff",
-                      border: "none",
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      fontSize: "0.95em",
-                      minWidth: "80px"
-                    }}
-                    onClick={() => handleOrderConfirm(idx, "framed")}
-                    disabled={loading}
-                  >Framed</button>
-                </div>
+<div style={{
+  margin: "20px 0 0 0",
+  textAlign: "center",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: "13px"
+}}>
+  <div style={{
+    fontWeight: 600,
+    color: "#d3ecff",
+    fontSize: "1.15em",
+    letterSpacing: "0.02em",
+    marginRight: "6px"
+  }}>
+    Order:
+  </div>
+  <button
+    style={{
+      padding: "7px 10px",
+      borderRadius: "6px",
+      background: "#2188d7",
+      color: "#fff",
+      border: "none",
+      fontWeight: 700,
+      cursor: "pointer",
+      fontSize: "0.95em",
+      minWidth: "80px"
+    }}
+    onClick={() => handleOrderConfirm(idx, "print")}
+    disabled={loading}
+  >Acrylic/Metal/Canvas</button>
+  <button
+    style={{
+      padding: "7px 10px",
+      borderRadius: "6px",
+      background: "#5ba150",
+      color: "#fff",
+      border: "none",
+      fontWeight: 700,
+      cursor: "pointer",
+      fontSize: "0.95em",
+      minWidth: "80px"
+    }}
+    onClick={() => handleOrderConfirm(idx, "paper")}
+    disabled={loading}
+  >Paper</button>
+  <button
+    style={{
+      padding: "7px 10px",
+      borderRadius: "6px",
+      background: "#bc6f3e",
+      color: "#fff",
+      border: "none",
+      fontWeight: 700,
+      cursor: "pointer",
+      fontSize: "0.95em",
+      minWidth: "80px"
+    }}
+    onClick={() => handleOrderConfirm(idx, "framed")}
+    disabled={loading}
+  >Framed</button>
+</div>
               </div>
             </div>
           ))}
