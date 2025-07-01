@@ -246,7 +246,6 @@ function App() {
           </h1>
           <form className="ai-form" onSubmit={handleSubmit}>
             <label
-<label
   htmlFor="shape-select"
   style={{
     display: "block",
