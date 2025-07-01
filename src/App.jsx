@@ -245,7 +245,22 @@ function App() {
             Pixx Prompt-to-Image
           </h1>
           <form className="ai-form" onSubmit={handleSubmit}>
+            <label
+              htmlFor="shape-select"
+              style={{
+                display: "block",
+                fontSize: "0.97em",
+                color: "#9fc1e4",
+                fontWeight: 500,
+                marginBottom: "2px",
+                marginLeft: "2px",
+                letterSpacing: "0.01em"
+              }}
+            >
+              Shape
+            </label>
             <select
+              id="shape-select"
               className="ai-shape-select"
               value={shape}
               onChange={(e) => setShape(e.target.value)}
@@ -256,6 +271,7 @@ function App() {
                 borderRadius: "8px",
                 fontSize: "1.1em",
                 minWidth: "185px",
+                width: "100%"
               }}
             >
               <option value="square">Square</option>
