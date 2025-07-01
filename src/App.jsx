@@ -30,7 +30,6 @@ function App() {
     setError("");
     setLoading(true);
 
-    // Generate 2 images, 2 API calls (DALL-E 3 only allows n:1)
     try {
       const results = [];
       for (let i = 0; i < 2; i++) {
@@ -71,11 +70,9 @@ function App() {
 
       if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
-      // Build the URL for your next app
-      const promptForFilename = prompt.replace(/[^\w\d-]+/g, "_").slice(0, 60); // Safe/short filename
+      const promptForFilename = prompt.replace(/[^\w\d-]+/g, "_").slice(0, 60);
       const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&prompt=${encodeURIComponent(promptForFilename)}`;
 
-      // -- Open in modal instead of new tab --
       setModalUrl(orderUrl);
       setModalOpen(true);
     } catch (e) {
@@ -107,6 +104,7 @@ function App() {
           }}
           onClick={e => e.stopPropagation()}
         >
+          {/* Modal close only returns to AI app, not to home */}
           <button
             onClick={() => setModalOpen(false)}
             style={{
@@ -130,28 +128,31 @@ function App() {
 
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
-      {/* EXIT button always visible */}
-      <button
-        style={{
-          position: "fixed",
-          top: 16,
-          right: 24,
-          zIndex: 9999,
-          background: "#23272f",
-          color: "#fff",
-          border: "none",
-          borderRadius: "7px",
-          padding: "11px 23px",
-          fontSize: "1.12em",
-          fontWeight: 700,
-          letterSpacing: "0.04em",
-          boxShadow: "0 1px 8px #0004",
-          cursor: "pointer"
-        }}
-        onClick={() => window.top.location.href = "https://pixximaging.com"}
-      >
-        EXIT
-      </button>
+      {/* EXIT button: only when modal is not open */}
+      {!modalOpen && (
+        <button
+          style={{
+            position: "fixed",
+            top: 16,
+            right: 24,
+            zIndex: 9999,
+            background: "#23272f",
+            color: "#fff",
+            border: "none",
+            borderRadius: "7px",
+            padding: "11px 23px",
+            fontSize: "1.12em",
+            fontWeight: 700,
+            letterSpacing: "0.04em",
+            boxShadow: "0 1px 8px #0004",
+            cursor: "pointer"
+          }}
+          onClick={() => window.top.location.href = "https://pixximaging.com"}
+        >
+          EXIT
+        </button>
+      )}
+
       <div className="ai-app-container" style={{ display: "flex", alignItems: "flex-start", maxWidth: "100vw", width: "100vw", margin: "0 auto", gap: "60px" }}>
         <div style={{ flex: "0 0 340px", minWidth: 320, margin: "40px 0 0 40px" }}>
           <h1 style={{
