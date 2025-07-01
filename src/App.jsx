@@ -25,29 +25,19 @@ function App() {
   };
 
   useEffect(() => {
-    // Kill all scroll when modal is open
+    // Prevent horizontal scroll on body (fixes little scroll bar)
+    document.body.style.overflowX = "hidden";
     if (modalOpen) {
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.padding = "0";
-      document.body.style.margin = "0";
-      document.documentElement.style.padding = "0";
-      document.documentElement.style.margin = "0";
+      document.body.style.overflowY = "hidden";
+      document.documentElement.style.overflowY = "hidden";
     } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.body.style.padding = "";
-      document.body.style.margin = "";
-      document.documentElement.style.padding = "";
-      document.documentElement.style.margin = "";
+      document.body.style.overflowY = "";
+      document.documentElement.style.overflowY = "";
     }
     return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.body.style.padding = "";
-      document.body.style.margin = "";
-      document.documentElement.style.padding = "";
-      document.documentElement.style.margin = "";
+      document.body.style.overflowX = "";
+      document.body.style.overflowY = "";
+      document.documentElement.style.overflowY = "";
     };
   }, [modalOpen]);
 
@@ -87,22 +77,19 @@ function App() {
     setLoading(true);
 
     try {
-      // Use a short filename param: 6 random digits + .jpg
       const shortName =
         String(Math.floor(Math.random() * 1e6)).padStart(6, "0") + ".jpg";
 
-      // Upload to S3 via API route, INCLUDE filename
       const uploadRes = await fetch("/api/upload-s3", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: imgUrl, filename: shortName }) // <-- key part
+        body: JSON.stringify({ imageUrl: imgUrl, filename: shortName })
       });
       const uploadData = await uploadRes.json();
 
       if (!uploadRes.ok || !uploadData.s3Url)
         throw new Error(uploadData.error || "Upload failed");
 
-      // Build the order URL
       const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(
         uploadData.s3Url
       )}&filename=${encodeURIComponent(shortName)}`;
@@ -186,7 +173,13 @@ function App() {
   return (
     <div
       className="ai-app-bg"
-      style={{ minHeight: "100vh", background: "#181c22" }}
+      style={{
+        minHeight: "100vh",
+        background: "#181c22",
+        boxSizing: "border-box",
+        width: "100vw",
+        overflowX: "hidden"
+      }}
     >
       {/* EXIT button: only when modal is not open */}
       {!modalOpen && (
@@ -220,16 +213,17 @@ function App() {
         style={{
           display: "flex",
           alignItems: "flex-start",
-          maxWidth: "100vw",
-          width: "100vw",
+          maxWidth: "1460px",
+          width: "100%",
           margin: "0 auto",
-          gap: "60px"
+          gap: "60px",
+          boxSizing: "border-box"
         }}
       >
         <div
           style={{
-            flex: "0 0 340px",
-            minWidth: 320,
+            flex: "0 0 430px",
+            minWidth: 390,
             margin: "40px 0 0 40px"
           }}
         >
@@ -272,12 +266,30 @@ function App() {
               disabled={loading}
               autoFocus
               required
-              style={{ marginBottom: "18px" }}
+              style={{
+                marginBottom: "18px",
+                fontSize: "1.17em",
+                padding: "10px 18px",
+                borderRadius: "9px",
+                border: "1px solid #aaa",
+                width: "100%",           // Makes it as wide as possible
+                minWidth: "320px",
+                maxWidth: "97%",
+                boxSizing: "border-box",
+                background: "#23293b",
+                color: "#e3f0ff"
+              }}
             />
             <button
               className="ai-generate-btn"
               type="submit"
               disabled={loading || !prompt.trim()}
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginTop: "3px",
+                fontSize: "1.07em"
+              }}
             >
               {loading ? "Generating..." : "Generate 2 Images"}
             </button>
