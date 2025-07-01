@@ -254,7 +254,7 @@ function App() {
     fontWeight: 500,
     marginBottom: "2px",
     marginTop: "26px",   // Lower!
-    marginLeft: "-14px", // Farther left!
+    marginLeft: "-34px", // Farther left!
     letterSpacing: "0.01em"
   }}
 >
