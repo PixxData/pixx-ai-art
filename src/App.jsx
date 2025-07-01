@@ -85,63 +85,62 @@ function App() {
   };
 
   // ---- Modal/lightbox JSX ----
-  const Modal = () =>
-    modalOpen && (
+const Modal = () =>
+  modalOpen && (
+    <div
+      style={{
+        position: "fixed",
+        left: 0,
+        top: 0,
+        width: "100vw",
+        height: "100vh",
+        background: "rgba(0,0,0,0.88)",
+        zIndex: 9000,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+      }}
+      onClick={() => setModalOpen(false)}
+    >
       <div
         style={{
-          position: "fixed",
-          left: 0,
-          top: 0,
-          width: "100vw",
-          height: "100vh",
-          background: "rgba(0,0,0,0.88)",
-          zIndex: 9000,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden", // hide any scrollbars on the overlay itself
+          width: "90vw",    // Make this smaller
+          height: "95vh",   // And this
+          background: "#181c22",
+          borderRadius: 20,
+          overflow: "hidden",
+          position: "relative",
+          boxShadow: "0 10px 64px #000c"
         }}
-        onClick={() => setModalOpen(false)}
+        onClick={e => e.stopPropagation()}
       >
-        <div
+        <button
+          onClick={() => setModalOpen(false)}
           style={{
-            width: "94vw",    // slightly less than 100vw
-            height: "97vh",   // slightly less than 100vh
-            background: "#181c22",
-            borderRadius: 20,
-            overflow: "hidden", // ensures no internal scrollbars
-            position: "relative",
-            boxShadow: "0 10px 64px #000c"
+            position: "absolute", top: 8, right: 18, zIndex: 2,
+            fontSize: "2em", color: "#fff", background: "none", border: "none",
+            cursor: "pointer", lineHeight: "1em"
           }}
-          onClick={e => e.stopPropagation()}
+          title="Close"
         >
-          {/* Modal close only returns to AI app, not to home */}
-          <button
-            onClick={() => setModalOpen(false)}
-            style={{
-              position: "absolute", top: 8, right: 18, zIndex: 2,
-              fontSize: "2em", color: "#fff", background: "none", border: "none",
-              cursor: "pointer", lineHeight: "1em"
-            }}
-            title="Close"
-          >
-            &times;
-          </button>
-          <iframe
-            src={modalUrl}
-            title="Order"
-            style={{
-              width: "100%",
-              height: "100%",
-              border: "none",
-              background: "#222",
-              overflow: "hidden"
-            }}
-            scrolling="no"
-          />
-        </div>
+          &times;
+        </button>
+        <iframe
+          src={modalUrl}
+          title="Order"
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "none",
+            background: "#222",
+            overflow: "hidden"
+          }}
+          scrolling="no"
+        />
       </div>
-    );
+    </div>
+  );
 
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
