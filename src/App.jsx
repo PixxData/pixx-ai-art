@@ -72,7 +72,8 @@ function App() {
       if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
       // Build the URL for your next app
-      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}`;
+const promptForFilename = prompt.replace(/[^\w\d-]+/g, "_").slice(0, 60); // Safe/short filename
+const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&prompt=${encodeURIComponent(promptForFilename)}`;
 
       // -- Open in modal instead of new tab --
       setModalUrl(orderUrl);
