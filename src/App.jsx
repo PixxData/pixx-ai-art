@@ -94,7 +94,7 @@ function App() {
       >
         <div
           style={{
-            width: "99vw",
+            width: "97vw",
             height: "99vh",
             background: "#181c22",
             borderRadius: 20,
