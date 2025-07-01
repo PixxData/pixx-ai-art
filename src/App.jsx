@@ -88,18 +88,21 @@ function App() {
 
     try {
       // Upload to S3 via API route
-      const uploadRes = await fetch("/api/upload-s3", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: imgUrl }),
-      });
-      const uploadData = await uploadRes.json();
+// Use a short filename param: 6 random digits + .jpg
+const shortName = String(Math.floor(Math.random() * 1e6)).padStart(6, "0") + ".jpg";
 
-      if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
+// Upload to S3 via API route, INCLUDE filename
+const uploadRes = await fetch("/api/upload-s3", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ imageUrl: imgUrl, filename: shortName }), // <-- key part
+});
+const uploadData = await uploadRes.json();
 
-      // Use a short filename param: 6 random digits + .jpg
-      const shortName = String(Math.floor(Math.random() * 1e6)).padStart(6, "0") + ".jpg";
-      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${encodeURIComponent(shortName)}`;
+if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
+
+// Build the order URL as before, using the shortName for both
+const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${encodeURIComponent(shortName)}`;
 
       setModalUrl(orderUrl);
       setModalOpen(true);
