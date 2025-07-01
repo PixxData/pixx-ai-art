@@ -3,7 +3,7 @@ import "./App.css";
 
 const PRODUCT_URLS = {
   print: "https://aiacm.netlify.app",
-  paper: "https://aipaper.netlify.app",
+  // paper: "https://aipaper.netlify.app", // <-- REMOVED
   framed: "https://aiframing.netlify.app"
 };
 
@@ -245,20 +245,20 @@ function App() {
             Pixx Prompt-to-Image
           </h1>
           <form className="ai-form" onSubmit={handleSubmit}>
-<label
-  htmlFor="shape-select"
-  style={{
-    display: "block",
-    fontSize: "0.91em",
-    color: "#9fc1e4",
-    fontWeight: 500,
-    marginBottom: "2px",    // small gap below
-    marginTop: "16px",      // space above if you want it lower
-    letterSpacing: "0.01em"
-  }}
->
-  Shape
-</label>
+            <label
+              htmlFor="shape-select"
+              style={{
+                display: "block",
+                fontSize: "0.91em",
+                color: "#9fc1e4",
+                fontWeight: 500,
+                marginBottom: "2px",
+                marginTop: "16px",
+                letterSpacing: "0.01em"
+              }}
+            >
+              Shape
+            </label>
             <select
               id="shape-select"
               className="ai-shape-select"
@@ -394,23 +394,7 @@ function App() {
                 >
                   Acrylic/Metal/Canvas
                 </button>
-                <button
-                  style={{
-                    padding: "7px 10px",
-                    borderRadius: "6px",
-                    background: "#5ba150",
-                    color: "#fff",
-                    border: "none",
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    fontSize: "0.95em",
-                    minWidth: "80px",
-                  }}
-                  onClick={() => handleOrderConfirm(idx, "paper")}
-                  disabled={loading}
-                >
-                  Paper
-                </button>
+                {/* PAPER BUTTON REMOVED */}
                 <button
                   style={{
                     padding: "7px 10px",
@@ -426,7 +410,7 @@ function App() {
                   onClick={() => handleOrderConfirm(idx, "framed")}
                   disabled={loading}
                 >
-                  Framed
+                  Framed paper
                 </button>
               </div>
             </div>
