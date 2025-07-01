@@ -246,19 +246,21 @@ function App() {
           </h1>
           <form className="ai-form" onSubmit={handleSubmit}>
             <label
-              htmlFor="shape-select"
-              style={{
-                display: "block",
-                fontSize: "0.97em",
-                color: "#9fc1e4",
-                fontWeight: 500,
-                marginBottom: "2px",
-                marginLeft: "2px",
-                letterSpacing: "0.01em"
-              }}
-            >
-              Shape
-            </label>
+<label
+  htmlFor="shape-select"
+  style={{
+    display: "block",
+    fontSize: "0.91em",
+    color: "#9fc1e4",
+    fontWeight: 500,
+    marginBottom: "2px",
+    marginTop: "26px",   // Lower!
+    marginLeft: "-14px", // Farther left!
+    letterSpacing: "0.01em"
+  }}
+>
+  Shape
+</label>
             <select
               id="shape-select"
               className="ai-shape-select"
