@@ -14,14 +14,14 @@ function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ---- Lightbox/modal state ----
+  // Lightbox/modal state
   const [modalUrl, setModalUrl] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
   const sizeOptions = {
     square: "1024x1024",
     horizontal: "1792x1024",
-    vertical: "1024x1792",
+    vertical: "1024x1792"
   };
 
   useEffect(() => {
@@ -48,7 +48,7 @@ function App() {
       document.body.style.margin = "";
       document.documentElement.style.padding = "";
       document.documentElement.style.margin = "";
-    }
+    };
   }, [modalOpen]);
 
   const handleSubmit = async (e) => {
@@ -65,8 +65,8 @@ function App() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             prompt,
-            size: sizeOptions[shape],
-          }),
+            size: sizeOptions[shape]
+          })
         });
         const data = await res.json();
         if (!res.ok || !data.imageUrl) {
@@ -87,22 +87,25 @@ function App() {
     setLoading(true);
 
     try {
-      // Upload to S3 via API route
-// Use a short filename param: 6 random digits + .jpg
-const shortName = String(Math.floor(Math.random() * 1e6)).padStart(6, "0") + ".jpg";
+      // Use a short filename param: 6 random digits + .jpg
+      const shortName =
+        String(Math.floor(Math.random() * 1e6)).padStart(6, "0") + ".jpg";
 
-// Upload to S3 via API route, INCLUDE filename
-const uploadRes = await fetch("/api/upload-s3", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ imageUrl: imgUrl, filename: shortName }), // <-- key part
-});
-const uploadData = await uploadRes.json();
+      // Upload to S3 via API route, INCLUDE filename
+      const uploadRes = await fetch("/api/upload-s3", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: imgUrl, filename: shortName }) // <-- key part
+      });
+      const uploadData = await uploadRes.json();
 
-if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
+      if (!uploadRes.ok || !uploadData.s3Url)
+        throw new Error(uploadData.error || "Upload failed");
 
-// Build the order URL as before, using the shortName for both
-const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${encodeURIComponent(shortName)}`;
+      // Build the order URL
+      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(
+        uploadData.s3Url
+      )}&filename=${encodeURIComponent(shortName)}`;
 
       setModalUrl(orderUrl);
       setModalOpen(true);
@@ -112,7 +115,7 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
     setLoading(false);
   };
 
-  // ---- Modal/lightbox JSX ----
+  // Modal/lightbox JSX
   const Modal = () =>
     modalOpen && (
       <div
@@ -127,7 +130,7 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          overflow: "hidden",
+          overflow: "hidden"
         }}
         onClick={() => setModalOpen(false)}
       >
@@ -141,17 +144,23 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
             position: "relative",
             boxShadow: "0 10px 64px #000c",
             padding: 0,
-            margin: 0,
+            margin: 0
           }}
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
-          {/* Modal close only returns to AI app, not to home */}
           <button
             onClick={() => setModalOpen(false)}
             style={{
-              position: "absolute", top: 8, right: 18, zIndex: 2,
-              fontSize: "2em", color: "#fff", background: "none", border: "none",
-              cursor: "pointer", lineHeight: "1em"
+              position: "absolute",
+              top: 8,
+              right: 18,
+              zIndex: 2,
+              fontSize: "2em",
+              color: "#fff",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              lineHeight: "1em"
             }}
             title="Close"
           >
@@ -166,7 +175,7 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
               border: "none",
               background: "#222",
               overflow: "hidden",
-              display: "block",
+              display: "block"
             }}
             scrolling="no"
           />
@@ -175,7 +184,10 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
     );
 
   return (
-    <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
+    <div
+      className="ai-app-bg"
+      style={{ minHeight: "100vh", background: "#181c22" }}
+    >
       {/* EXIT button: only when modal is not open */}
       {!modalOpen && (
         <button
@@ -195,27 +207,49 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
             boxShadow: "0 1px 8px #0004",
             cursor: "pointer"
           }}
-          onClick={() => window.top.location.href = "https://pixximaging.com"}
+          onClick={() =>
+            (window.top.location.href = "https://pixximaging.com")
+          }
         >
           EXIT
         </button>
       )}
 
-      <div className="ai-app-container" style={{ display: "flex", alignItems: "flex-start", maxWidth: "100vw", width: "100vw", margin: "0 auto", gap: "60px" }}>
-        <div style={{ flex: "0 0 340px", minWidth: 320, margin: "40px 0 0 40px" }}>
-          <h1 style={{
-            color: "#93d0ff",
-            fontWeight: 800,
-            fontSize: "1.75em",
-            margin: "0 0 25px 0",
-            letterSpacing: "0.01em",
-            textShadow: "0 1px 18px #0022"
-          }}>Pixx Prompt-to-Image</h1>
+      <div
+        className="ai-app-container"
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          maxWidth: "100vw",
+          width: "100vw",
+          margin: "0 auto",
+          gap: "60px"
+        }}
+      >
+        <div
+          style={{
+            flex: "0 0 340px",
+            minWidth: 320,
+            margin: "40px 0 0 40px"
+          }}
+        >
+          <h1
+            style={{
+              color: "#93d0ff",
+              fontWeight: 800,
+              fontSize: "1.75em",
+              margin: "0 0 25px 0",
+              letterSpacing: "0.01em",
+              textShadow: "0 1px 18px #0022"
+            }}
+          >
+            Pixx Prompt-to-Image
+          </h1>
           <form className="ai-form" onSubmit={handleSubmit}>
             <select
               className="ai-shape-select"
               value={shape}
-              onChange={e => setShape(e.target.value)}
+              onChange={(e) => setShape(e.target.value)}
               disabled={loading}
               style={{
                 marginBottom: "14px",
@@ -234,13 +268,17 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
               type="text"
               placeholder="Describe your image..."
               value={prompt}
-              onChange={e => setPrompt(e.target.value)}
+              onChange={(e) => setPrompt(e.target.value)}
               disabled={loading}
               autoFocus
               required
               style={{ marginBottom: "18px" }}
             />
-            <button className="ai-generate-btn" type="submit" disabled={loading || !prompt.trim()}>
+            <button
+              className="ai-generate-btn"
+              type="submit"
+              disabled={loading || !prompt.trim()}
+            >
               {loading ? "Generating..." : "Generate 2 Images"}
             </button>
           </form>
@@ -252,16 +290,18 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
           )}
         </div>
         {/* Image Grid */}
-        <div style={{
-          flex: 1,
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "38px",
-          justifyItems: "center",
-          alignItems: "start",
-          marginTop: "34px",
-          marginRight: "60px",
-        }}>
+        <div
+          style={{
+            flex: 1,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "38px",
+            justifyItems: "center",
+            alignItems: "start",
+            marginTop: "34px",
+            marginRight: "60px"
+          }}
+        >
           {images.map((img, idx) => (
             <div
               key={img}
@@ -287,69 +327,78 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
                   background: "#000"
                 }}
               />
-<div style={{
-  margin: "20px 0 0 0",
-  textAlign: "center",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "13px"
-}}>
-  <div style={{
-    fontWeight: 600,
-    color: "#d3ecff",
-    fontSize: "1.15em",
-    letterSpacing: "0.02em",
-    marginRight: "6px"
-  }}>
-    Order:
-  </div>
-  <button
-    style={{
-      padding: "7px 10px",
-      borderRadius: "6px",
-      background: "#2188d7",
-      color: "#fff",
-      border: "none",
-      fontWeight: 700,
-      cursor: "pointer",
-      fontSize: "0.95em",
-      minWidth: "80px"
-    }}
-    onClick={() => handleOrderConfirm(idx, "print")}
-    disabled={loading}
-  >Acrylic/Metal/Canvas</button>
-  <button
-    style={{
-      padding: "7px 10px",
-      borderRadius: "6px",
-      background: "#5ba150",
-      color: "#fff",
-      border: "none",
-      fontWeight: 700,
-      cursor: "pointer",
-      fontSize: "0.95em",
-      minWidth: "80px"
-    }}
-    onClick={() => handleOrderConfirm(idx, "paper")}
-    disabled={loading}
-  >Paper</button>
-  <button
-    style={{
-      padding: "7px 10px",
-      borderRadius: "6px",
-      background: "#bc6f3e",
-      color: "#fff",
-      border: "none",
-      fontWeight: 700,
-      cursor: "pointer",
-      fontSize: "0.95em",
-      minWidth: "80px"
-    }}
-    onClick={() => handleOrderConfirm(idx, "framed")}
-    disabled={loading}
-  >Framed</button>
-</div>
+              <div
+                style={{
+                  margin: "20px 0 0 0",
+                  textAlign: "center",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "13px"
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: 600,
+                    color: "#d3ecff",
+                    fontSize: "1.15em",
+                    letterSpacing: "0.02em",
+                    marginRight: "6px"
+                  }}
+                >
+                  Order:
+                </div>
+                <button
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: "6px",
+                    background: "#2188d7",
+                    color: "#fff",
+                    border: "none",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    fontSize: "0.95em",
+                    minWidth: "80px"
+                  }}
+                  onClick={() => handleOrderConfirm(idx, "print")}
+                  disabled={loading}
+                >
+                  Acrylic/Metal/Canvas
+                </button>
+                <button
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: "6px",
+                    background: "#5ba150",
+                    color: "#fff",
+                    border: "none",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    fontSize: "0.95em",
+                    minWidth: "80px"
+                  }}
+                  onClick={() => handleOrderConfirm(idx, "paper")}
+                  disabled={loading}
+                >
+                  Paper
+                </button>
+                <button
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: "6px",
+                    background: "#bc6f3e",
+                    color: "#fff",
+                    border: "none",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    fontSize: "0.95em",
+                    minWidth: "80px"
+                  }}
+                  onClick={() => handleOrderConfirm(idx, "framed")}
+                  disabled={loading}
+                >
+                  Framed
+                </button>
               </div>
             </div>
           ))}
