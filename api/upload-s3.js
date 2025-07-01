@@ -51,7 +51,33 @@ export default async function handler(req, res) {
     });
 
     // File details
-const fileName = `uploads/${Date.now()}_${Math.floor(Math.random() * 999999)}.jpg`;
+// Use the filename provided from the frontend, fallback if missing
+let userFilename;
+try {
+  // Parse filename from body
+  let bodyObj;
+  if (!req.body || typeof req.body === "string") {
+    let bodyRaw = req.body;
+    if (!bodyRaw) {
+      const chunks = [];
+      for await (const chunk of req) chunks.push(chunk);
+      bodyRaw = Buffer.concat(chunks).toString();
+    }
+    bodyObj = JSON.parse(bodyRaw);
+  } else {
+    bodyObj = req.body;
+  }
+  userFilename = bodyObj.filename; // <--- get the filename
+} catch (e) {
+  userFilename = undefined;
+}
+
+const safeFilename =
+  typeof userFilename === "string" && userFilename.match(/^[\w\-\.]{3,64}$/)
+    ? userFilename
+    : `${Date.now()}_${Math.floor(Math.random() * 999999)}.jpg`;
+
+const fileName = `uploads/${safeFilename}`;
     const BUCKET = process.env.S3_BUCKET_NAME;
 
     // Upload to S3
