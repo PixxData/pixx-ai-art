@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     const fileName = `uploads/${safeFilename}`;
     const BUCKET = process.env.S3_BUCKET_NAME;
 
-    // Create the S3 client (THIS WAS MISSING!)
+    // Create the S3 client
     const s3 = new S3Client({
       region: process.env.S3_REGION,
       credentials: {
