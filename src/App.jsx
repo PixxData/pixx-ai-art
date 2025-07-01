@@ -252,9 +252,9 @@ function App() {
     fontSize: "0.91em",
     color: "#9fc1e4",
     fontWeight: 500,
-    marginBottom: "2px",
-    marginTop: "26px",   // Lower!
-    marginLeft: "-34px", // Farther left!
+    marginBottom: "1px",
+    marginTop: "16px",   // Lower!
+    marginLeft: "-64px", // Farther left!
     letterSpacing: "0.01em"
   }}
 >
