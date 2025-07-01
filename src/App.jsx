@@ -245,16 +245,15 @@ function App() {
             Pixx Prompt-to-Image
           </h1>
           <form className="ai-form" onSubmit={handleSubmit}>
-            <label
+<label
   htmlFor="shape-select"
   style={{
     display: "block",
     fontSize: "0.91em",
     color: "#9fc1e4",
     fontWeight: 500,
-    marginBottom: "0px",
-    marginTop: "16px",   // Lower!
-    marginLeft: "-224px", // Farther left!
+    marginBottom: "2px",    // small gap below
+    marginTop: "16px",      // space above if you want it lower
     letterSpacing: "0.01em"
   }}
 >
