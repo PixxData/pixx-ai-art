@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
 
-// Set your order app URLs
 const PRODUCT_URLS = {
   print: "https://aiacm.netlify.app",
   paper: "https://aipaper.netlify.app",
@@ -14,6 +13,8 @@ function App() {
   const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // ---- Lightbox/modal state ----
   const [modalUrl, setModalUrl] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -23,13 +24,6 @@ function App() {
     vertical: "1024x1792",
   };
 
-  // Generate a random 6-digit number as filename (plus .jpg)
-  function generateShortFilename() {
-    const random = Math.floor(100000 + Math.random() * 900000);
-    return `${random}.jpg`;
-  }
-
-  // AI Image Generator
   const handleSubmit = async (e) => {
     e.preventDefault();
     setImages([]);
@@ -60,28 +54,27 @@ function App() {
     setLoading(false);
   };
 
-  // Send to S3, then open order page
+  // Product Order
   const handleOrderConfirm = async (idx, product) => {
     const imgUrl = images[idx];
     setLoading(true);
 
     try {
-      // 1. Generate a 6-digit filename
-      const shortFilename = generateShortFilename();
-
-      // 2. Upload to S3 (make sure your API uses this filename)
+      // Upload to S3 via API route
       const uploadRes = await fetch("/api/upload-s3", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: imgUrl, filename: shortFilename }),
+        body: JSON.stringify({ imageUrl: imgUrl }),
       });
       const uploadData = await uploadRes.json();
 
-      if (!uploadRes.ok || !uploadData.s3Url)
-        throw new Error(uploadData.error || "Upload failed");
+      if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
-      // 3. Build the URL for your next app (pass the short filename)
-      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${encodeURIComponent(shortFilename)}`;
+      // Use a 6-digit timestamp for filename (seconds)
+      const shortTimestamp = Math.floor(Date.now() / 1000) % 1000000;
+      const filename = `${shortTimestamp}.jpg`;
+
+      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${encodeURIComponent(filename)}`;
 
       setModalUrl(orderUrl);
       setModalOpen(true);
@@ -92,28 +85,37 @@ function App() {
   };
 
   // ---- Modal/lightbox JSX ----
-  const Modal = () => (
+  const Modal = () =>
     modalOpen && (
       <div
         style={{
-          position: "fixed", left: 0, top: 0, width: "100vw", height: "100vh",
-          background: "rgba(0,0,0,0.88)", zIndex: 9000, display: "flex",
-          alignItems: "center", justifyContent: "center"
+          position: "fixed",
+          left: 0,
+          top: 0,
+          width: "100vw",
+          height: "100vh",
+          background: "rgba(0,0,0,0.88)",
+          zIndex: 9000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden", // hide any scrollbars on the overlay itself
         }}
         onClick={() => setModalOpen(false)}
       >
         <div
           style={{
-            width: "95vw",
-            height: "97vh",
+            width: "94vw",    // slightly less than 100vw
+            height: "97vh",   // slightly less than 100vh
             background: "#181c22",
             borderRadius: 20,
-            overflow: "hidden",
+            overflow: "hidden", // ensures no internal scrollbars
             position: "relative",
             boxShadow: "0 10px 64px #000c"
           }}
           onClick={e => e.stopPropagation()}
         >
+          {/* Modal close only returns to AI app, not to home */}
           <button
             onClick={() => setModalOpen(false)}
             style={{
@@ -128,16 +130,22 @@ function App() {
           <iframe
             src={modalUrl}
             title="Order"
-            style={{ width: "100%", height: "100%", border: "none", background: "#222" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "none",
+              background: "#222",
+              overflow: "hidden"
+            }}
+            scrolling="no"
           />
         </div>
       </div>
-    )
-  );
+    );
 
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
-      {/* EXIT button */}
+      {/* EXIT button: only when modal is not open */}
       {!modalOpen && (
         <button
           style={{
