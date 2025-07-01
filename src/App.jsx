@@ -72,8 +72,8 @@ function App() {
       if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
       // Build the URL for your next app
-const promptForFilename = prompt.replace(/[^\w\d-]+/g, "_").slice(0, 60); // Safe/short filename
-const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&prompt=${encodeURIComponent(promptForFilename)}`;
+      const promptForFilename = prompt.replace(/[^\w\d-]+/g, "_").slice(0, 60); // Safe/short filename
+      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&prompt=${encodeURIComponent(promptForFilename)}`;
 
       // -- Open in modal instead of new tab --
       setModalUrl(orderUrl);
@@ -97,18 +97,16 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
       >
         <div
           style={{
-<div
-  style={{
-    width: "99vw",  // More screen width
-    height: "99vh", // More screen height
-    background: "#181c22",
-    borderRadius: 20,
-    overflow: "hidden",
-    position: "relative",
-    boxShadow: "0 10px 64px #000c"
-  }}
-  onClick={e => e.stopPropagation()}
->
+            width: "99vw",  // Nearly full width
+            height: "99vh", // Nearly full height
+            background: "#181c22",
+            borderRadius: 20,
+            overflow: "hidden",
+            position: "relative",
+            boxShadow: "0 10px 64px #000c"
+          }}
+          onClick={e => e.stopPropagation()}
+        >
           <button
             onClick={() => setModalOpen(false)}
             style={{
