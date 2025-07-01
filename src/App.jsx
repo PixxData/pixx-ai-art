@@ -97,8 +97,8 @@ function App() {
       >
         <div
           style={{
-            width: "99vw",  // Nearly full width
-            height: "99vh", // Nearly full height
+            width: "99vw",
+            height: "99vh",
             background: "#181c22",
             borderRadius: 20,
             overflow: "hidden",
@@ -130,6 +130,28 @@ function App() {
 
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
+      {/* EXIT button always visible */}
+      <button
+        style={{
+          position: "fixed",
+          top: 16,
+          right: 24,
+          zIndex: 9999,
+          background: "#23272f",
+          color: "#fff",
+          border: "none",
+          borderRadius: "7px",
+          padding: "11px 23px",
+          fontSize: "1.12em",
+          fontWeight: 700,
+          letterSpacing: "0.04em",
+          boxShadow: "0 1px 8px #0004",
+          cursor: "pointer"
+        }}
+        onClick={() => window.top.location.href = "https://pixximaging.com"}
+      >
+        EXIT
+      </button>
       <div className="ai-app-container" style={{ display: "flex", alignItems: "flex-start", maxWidth: "100vw", width: "100vw", margin: "0 auto", gap: "60px" }}>
         <div style={{ flex: "0 0 340px", minWidth: 320, margin: "40px 0 0 40px" }}>
           <h1 style={{
