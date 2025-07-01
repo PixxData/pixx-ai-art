@@ -14,19 +14,28 @@ function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Lightbox/modal state
+  // ---- Lightbox/modal state ----
   const [modalUrl, setModalUrl] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
   const sizeOptions = {
     square: "1024x1024",
     horizontal: "1792x1024",
-    vertical: "1024x1792"
+    vertical: "1024x1792",
   };
 
+  // Remove scrollbars (page never scrolls left/right/up/down)
   useEffect(() => {
-    // Prevent horizontal scroll on body (fixes little scroll bar)
-    document.body.style.overflowX = "hidden";
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, []);
+
+  // Remove scroll when modal is open (overrides above for modal)
+  useEffect(() => {
     if (modalOpen) {
       document.body.style.overflowY = "hidden";
       document.documentElement.style.overflowY = "hidden";
@@ -35,7 +44,6 @@ function App() {
       document.documentElement.style.overflowY = "";
     }
     return () => {
-      document.body.style.overflowX = "";
       document.body.style.overflowY = "";
       document.documentElement.style.overflowY = "";
     };
@@ -55,8 +63,8 @@ function App() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             prompt,
-            size: sizeOptions[shape]
-          })
+            size: sizeOptions[shape],
+          }),
         });
         const data = await res.json();
         if (!res.ok || !data.imageUrl) {
@@ -77,19 +85,22 @@ function App() {
     setLoading(true);
 
     try {
+      // Use a short filename param: 6 random digits + .jpg
       const shortName =
         String(Math.floor(Math.random() * 1e6)).padStart(6, "0") + ".jpg";
 
+      // Upload to S3 via API route, INCLUDE filename
       const uploadRes = await fetch("/api/upload-s3", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: imgUrl, filename: shortName })
+        body: JSON.stringify({ imageUrl: imgUrl, filename: shortName }),
       });
       const uploadData = await uploadRes.json();
 
       if (!uploadRes.ok || !uploadData.s3Url)
         throw new Error(uploadData.error || "Upload failed");
 
+      // Build the order URL
       const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(
         uploadData.s3Url
       )}&filename=${encodeURIComponent(shortName)}`;
@@ -102,7 +113,7 @@ function App() {
     setLoading(false);
   };
 
-  // Modal/lightbox JSX
+  // ---- Modal/lightbox JSX ----
   const Modal = () =>
     modalOpen && (
       <div
@@ -117,7 +128,7 @@ function App() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
         onClick={() => setModalOpen(false)}
       >
@@ -131,10 +142,11 @@ function App() {
             position: "relative",
             boxShadow: "0 10px 64px #000c",
             padding: 0,
-            margin: 0
+            margin: 0,
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Modal close only returns to AI app, not to home */}
           <button
             onClick={() => setModalOpen(false)}
             style={{
@@ -147,7 +159,7 @@ function App() {
               background: "none",
               border: "none",
               cursor: "pointer",
-              lineHeight: "1em"
+              lineHeight: "1em",
             }}
             title="Close"
           >
@@ -162,7 +174,7 @@ function App() {
               border: "none",
               background: "#222",
               overflow: "hidden",
-              display: "block"
+              display: "block",
             }}
             scrolling="no"
           />
@@ -173,13 +185,7 @@ function App() {
   return (
     <div
       className="ai-app-bg"
-      style={{
-        minHeight: "100vh",
-        background: "#181c22",
-        boxSizing: "border-box",
-        width: "100vw",
-        overflowX: "hidden"
-      }}
+      style={{ minHeight: "100vh", background: "#181c22" }}
     >
       {/* EXIT button: only when modal is not open */}
       {!modalOpen && (
@@ -198,7 +204,7 @@ function App() {
             fontWeight: 700,
             letterSpacing: "0.04em",
             boxShadow: "0 1px 8px #0004",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
           onClick={() =>
             (window.top.location.href = "https://pixximaging.com")
@@ -213,18 +219,17 @@ function App() {
         style={{
           display: "flex",
           alignItems: "flex-start",
-          maxWidth: "1460px",
-          width: "100%",
+          maxWidth: "100vw",
+          width: "100vw",
           margin: "0 auto",
           gap: "60px",
-          boxSizing: "border-box"
         }}
       >
         <div
           style={{
-            flex: "0 0 430px",
-            minWidth: 390,
-            margin: "40px 0 0 40px"
+            flex: "0 0 340px",
+            minWidth: 320,
+            margin: "40px 0 0 40px",
           }}
         >
           <h1
@@ -234,7 +239,7 @@ function App() {
               fontSize: "1.75em",
               margin: "0 0 25px 0",
               letterSpacing: "0.01em",
-              textShadow: "0 1px 18px #0022"
+              textShadow: "0 1px 18px #0022",
             }}
           >
             Pixx Prompt-to-Image
@@ -250,46 +255,42 @@ function App() {
                 padding: "8px",
                 borderRadius: "8px",
                 fontSize: "1.1em",
-                minWidth: "185px"
+                minWidth: "185px",
               }}
             >
               <option value="square">Square</option>
               <option value="horizontal">Horizontal</option>
               <option value="vertical">Vertical</option>
             </select>
-            <input
+            <textarea
               className="ai-prompt-input"
-              type="text"
               placeholder="Describe your image..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               disabled={loading}
               autoFocus
               required
+              rows={3}
               style={{
                 marginBottom: "18px",
-                fontSize: "1.17em",
-                padding: "10px 18px",
-                borderRadius: "9px",
+                width: "100%",
+                fontSize: "1.13em",
+                borderRadius: "8px",
                 border: "1px solid #aaa",
-                width: "100%",           // Makes it as wide as possible
-                minWidth: "320px",
-                maxWidth: "97%",
-                boxSizing: "border-box",
+                padding: "10px 14px",
+                resize: "vertical",
+                minHeight: "48px",
+                maxHeight: "130px",
                 background: "#23293b",
-                color: "#e3f0ff"
+                color: "#e3f0ff",
+                boxSizing: "border-box",
+                lineHeight: "1.4",
               }}
             />
             <button
               className="ai-generate-btn"
               type="submit"
               disabled={loading || !prompt.trim()}
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginTop: "3px",
-                fontSize: "1.07em"
-              }}
             >
               {loading ? "Generating..." : "Generate 2 Images"}
             </button>
@@ -311,7 +312,7 @@ function App() {
             justifyItems: "center",
             alignItems: "start",
             marginTop: "34px",
-            marginRight: "60px"
+            marginRight: "60px",
           }}
         >
           {images.map((img, idx) => (
@@ -325,7 +326,7 @@ function App() {
                 width: "97%",
                 maxWidth: "670px",
                 boxShadow: "0 4px 32px #0004",
-                minHeight: "max(450px,34vw)"
+                minHeight: "max(450px,34vw)",
               }}
             >
               <img
@@ -336,7 +337,7 @@ function App() {
                   height: "min(34vw,650px)",
                   objectFit: "contain",
                   borderRadius: "2px",
-                  background: "#000"
+                  background: "#000",
                 }}
               />
               <div
@@ -346,7 +347,7 @@ function App() {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  gap: "13px"
+                  gap: "13px",
                 }}
               >
                 <div
@@ -355,7 +356,7 @@ function App() {
                     color: "#d3ecff",
                     fontSize: "1.15em",
                     letterSpacing: "0.02em",
-                    marginRight: "6px"
+                    marginRight: "6px",
                   }}
                 >
                   Order:
@@ -370,7 +371,7 @@ function App() {
                     fontWeight: 700,
                     cursor: "pointer",
                     fontSize: "0.95em",
-                    minWidth: "80px"
+                    minWidth: "80px",
                   }}
                   onClick={() => handleOrderConfirm(idx, "print")}
                   disabled={loading}
@@ -387,7 +388,7 @@ function App() {
                     fontWeight: 700,
                     cursor: "pointer",
                     fontSize: "0.95em",
-                    minWidth: "80px"
+                    minWidth: "80px",
                   }}
                   onClick={() => handleOrderConfirm(idx, "paper")}
                   disabled={loading}
@@ -404,7 +405,7 @@ function App() {
                     fontWeight: 700,
                     cursor: "pointer",
                     fontSize: "0.95em",
-                    minWidth: "80px"
+                    minWidth: "80px",
                   }}
                   onClick={() => handleOrderConfirm(idx, "framed")}
                   disabled={loading}
