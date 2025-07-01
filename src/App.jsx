@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
 const PRODUCT_URLS = {
@@ -23,6 +23,33 @@ function App() {
     horizontal: "1792x1024",
     vertical: "1024x1792",
   };
+
+  useEffect(() => {
+    // Kill all scroll when modal is open
+    if (modalOpen) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.padding = "0";
+      document.body.style.margin = "0";
+      document.documentElement.style.padding = "0";
+      document.documentElement.style.margin = "0";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.padding = "";
+      document.body.style.margin = "";
+      document.documentElement.style.padding = "";
+      document.documentElement.style.margin = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      document.body.style.padding = "";
+      document.body.style.margin = "";
+      document.documentElement.style.padding = "";
+      document.documentElement.style.margin = "";
+    }
+  }, [modalOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,11 +97,9 @@ function App() {
 
       if (!uploadRes.ok || !uploadData.s3Url) throw new Error(uploadData.error || "Upload failed");
 
-      // Use a 6-digit timestamp for filename (seconds)
-      const shortTimestamp = Math.floor(Date.now() / 1000) % 1000000;
-      const filename = `${shortTimestamp}.jpg`;
-
-      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${encodeURIComponent(filename)}`;
+      // Use a short filename param: 6 random digits + .jpg
+      const shortName = String(Math.floor(Math.random() * 1e6)).padStart(6, "0") + ".jpg";
+      const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s3Url)}&filename=${encodeURIComponent(shortName)}`;
 
       setModalUrl(orderUrl);
       setModalOpen(true);
@@ -85,62 +110,66 @@ function App() {
   };
 
   // ---- Modal/lightbox JSX ----
-const Modal = () =>
-  modalOpen && (
-    <div
-      style={{
-        position: "fixed",
-        left: 0,
-        top: 0,
-        width: "100vw",
-        height: "100vh",
-        background: "rgba(0,0,0,0.88)",
-        zIndex: 9000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}
-      onClick={() => setModalOpen(false)}
-    >
+  const Modal = () =>
+    modalOpen && (
       <div
         style={{
-          width: "90vw",    // Make this smaller
-          height: "95vh",   // And this
-          background: "#181c22",
-          borderRadius: 20,
+          position: "fixed",
+          left: 0,
+          top: 0,
+          width: "100vw",
+          height: "100vh",
+          background: "rgba(0,0,0,0.88)",
+          zIndex: 9000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           overflow: "hidden",
-          position: "relative",
-          boxShadow: "0 10px 64px #000c"
         }}
-        onClick={e => e.stopPropagation()}
+        onClick={() => setModalOpen(false)}
       >
-        <button
-          onClick={() => setModalOpen(false)}
+        <div
           style={{
-            position: "absolute", top: 8, right: 18, zIndex: 2,
-            fontSize: "2em", color: "#fff", background: "none", border: "none",
-            cursor: "pointer", lineHeight: "1em"
+            width: "88vw",
+            height: "92vh",
+            background: "#181c22",
+            borderRadius: 20,
+            overflow: "hidden",
+            position: "relative",
+            boxShadow: "0 10px 64px #000c",
+            padding: 0,
+            margin: 0,
           }}
-          title="Close"
+          onClick={e => e.stopPropagation()}
         >
-          &times;
-        </button>
-        <iframe
-          src={modalUrl}
-          title="Order"
-          style={{
-            width: "100%",
-            height: "100%",
-            border: "none",
-            background: "#222",
-            overflow: "hidden"
-          }}
-          scrolling="no"
-        />
+          {/* Modal close only returns to AI app, not to home */}
+          <button
+            onClick={() => setModalOpen(false)}
+            style={{
+              position: "absolute", top: 8, right: 18, zIndex: 2,
+              fontSize: "2em", color: "#fff", background: "none", border: "none",
+              cursor: "pointer", lineHeight: "1em"
+            }}
+            title="Close"
+          >
+            &times;
+          </button>
+          <iframe
+            src={modalUrl}
+            title="Order"
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "none",
+              background: "#222",
+              overflow: "hidden",
+              display: "block",
+            }}
+            scrolling="no"
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
 
   return (
     <div className="ai-app-bg" style={{ minHeight: "100vh", background: "#181c22" }}>
