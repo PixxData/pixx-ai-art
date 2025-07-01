@@ -133,8 +133,8 @@ const orderUrl = `${PRODUCT_URLS[product]}?img=${encodeURIComponent(uploadData.s
       >
         <div
           style={{
-            width: "95vw",
-            height: "95vh",
+            width: "97vw",
+            height: "97vh",
             background: "#181c22",
             borderRadius: 20,
             overflow: "hidden",
