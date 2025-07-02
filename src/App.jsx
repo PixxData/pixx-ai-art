@@ -247,7 +247,6 @@ function App() {
           {/* FORM STARTS HERE */}
 <form className="ai-form" onSubmit={handleSubmit}>
   <div style={{ width: "420px", margin: "0 0 24px 0" }}>
-    <label
 <label
   htmlFor="shape-select"
   style={{
