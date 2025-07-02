@@ -246,7 +246,7 @@ function App() {
           </h1>
           {/* FORM STARTS HERE */}
           <form className="ai-form" onSubmit={handleSubmit}>
-            <div style={{ transform: "translateX(-25%)", width: "max-content" }}>
+            <div style={{ transform: "translateX(-15%)", width: "max-content" }}>
               <label
                 htmlFor="shape-select"
                 style={{
