@@ -244,8 +244,7 @@ function App() {
           >
             Pixx Prompt-to-Image
           </h1>
-<form className="ai-form" onSubmit={handleSubmit}>
-  <div style={{ transform: "translateX(-250%)", width: "max-content" }}>
+<div style={{ transform: "translateX(-250%)", width: "max-content" }}>
     <label
       htmlFor="shape-select"
       style={{
@@ -279,8 +278,7 @@ function App() {
       <option value="horizontal">Horizontal</option>
       <option value="vertical">Vertical</option>
     </select>
-  </div>
-            <textarea
+  </div>            <textarea
               className="ai-prompt-input"
               placeholder="Describe your image..."
               value={prompt}
