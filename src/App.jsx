@@ -248,41 +248,45 @@ function App() {
 <form className="ai-form" onSubmit={handleSubmit}>
   <div style={{ width: "420px", margin: "0 0 24px 0" }}>
     <label
-      htmlFor="shape-select"
-      style={{
-        display: "block",
-        fontSize: "0.91em",
-        color: "#9fc1e4",
-        fontWeight: 500,
-        marginBottom: "6px",
-        marginTop: "6px",
-        letterSpacing: "0.01em",
-      }}
-    >
-      Shape
-    </label>
-    <select
-      id="shape-select"
-      className="ai-shape-select"
-      value={shape}
-      onChange={(e) => setShape(e.target.value)}
-      disabled={loading}
-      style={{
-        width: "100%",          // Exactly matches the textarea below
-        padding: "10px 16px",
-        borderRadius: "10px",
-        fontSize: "1.28em",
-        background: "#23272f",
-        color: "#fff",
-        border: "1.5px solid #666",
-        marginBottom: "0"
-      }}
-    >
-      <option value="square">Square</option>
-      <option value="horizontal">Horizontal</option>
-      <option value="vertical">Vertical</option>
-    </select>
-  </div>
+<div style={{ width: "100%", margin: "0 0 24px 0" }}>
+  <label
+    htmlFor="shape-select"
+    style={{
+      display: "block",
+      fontSize: "0.91em",
+      color: "#9fc1e4",
+      fontWeight: 500,
+      marginBottom: "6px",
+      marginTop: "6px",
+      letterSpacing: "0.01em",
+      textAlign: "left" // force left alignment
+    }}
+  >
+    Shape
+  </label>
+  <select
+    id="shape-select"
+    className="ai-shape-select"
+    value={shape}
+    onChange={(e) => setShape(e.target.value)}
+    disabled={loading}
+    style={{
+      width: "200px",        // <-- NARROW width here (adjust as you like)
+      padding: "10px 16px",
+      borderRadius: "10px",
+      fontSize: "1.28em",
+      background: "#23272f",
+      color: "#fff",
+      border: "1.5px solid #666",
+      marginBottom: "0",
+      display: "block",      // <-- force the dropdown to start on a new line
+    }}
+  >
+    <option value="square">Square</option>
+    <option value="horizontal">Horizontal</option>
+    <option value="vertical">Vertical</option>
+  </select>
+</div>
   <textarea
     className="ai-prompt-input"
     placeholder="Describe your image..."
