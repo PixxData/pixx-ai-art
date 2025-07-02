@@ -246,41 +246,42 @@ function App() {
           </h1>
           {/* FORM STARTS HERE */}
           <form className="ai-form" onSubmit={handleSubmit}>
-            <div style={{ transform: "translateX(-15%)", width: "max-content" }}>
-              <label
-                htmlFor="shape-select"
-                style={{
-                  display: "block",
-                  fontSize: "0.91em",
-                  color: "#9fc1e4",
-                  fontWeight: 500,
-                  marginBottom: "2px",
-                  marginTop: "16px",
-                  letterSpacing: "0.01em"
-                }}
-              >
-                Shape
-              </label>
-              <select
-                id="shape-select"
-                className="ai-shape-select"
-                value={shape}
-                onChange={(e) => setShape(e.target.value)}
-                disabled={loading}
-                style={{
-                  marginBottom: "14px",
-                  padding: "8px",
-                  borderRadius: "8px",
-                  fontSize: "1.1em",
-                  minWidth: "185px",
-                  width: "100%"
-                }}
-              >
-                <option value="square">Square</option>
-                <option value="horizontal">Horizontal</option>
-                <option value="vertical">Vertical</option>
-              </select>
-            </div>
+<div style={{ width: "100%" }}>
+  <label
+    htmlFor="shape-select"
+    style={{
+      display: "block",
+      fontSize: "0.91em",
+      color: "#9fc1e4",
+      fontWeight: 500,
+      marginBottom: "2px",
+      marginTop: "16px",
+      letterSpacing: "0.01em"
+    }}
+  >
+    Shape
+  </label>
+  <select
+    id="shape-select"
+    className="ai-shape-select"
+    value={shape}
+    onChange={(e) => setShape(e.target.value)}
+    disabled={loading}
+    style={{
+      marginBottom: "14px",
+      padding: "8px",
+      borderRadius: "8px",
+      fontSize: "1.1em",
+      minWidth: "185px",
+      width: "100%",
+      marginLeft: "80px" // <--- This moves the dropdown to the right!
+    }}
+  >
+    <option value="square">Square</option>
+    <option value="horizontal">Horizontal</option>
+    <option value="vertical">Vertical</option>
+  </select>
+</div>
             <textarea
               className="ai-prompt-input"
               placeholder="Describe your image..."
