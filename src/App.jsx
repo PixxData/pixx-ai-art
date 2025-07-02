@@ -244,14 +244,77 @@ function App() {
           >
             Pixx Prompt-to-Image
           </h1>
-<form className="ai-form" onSubmit={handleSubmit}>
-  <div style={{ transform: "translateX(-250%)", width: "max-content" }}>
-    <label ...>Shape</label>
-    <select ...>...</select>
-  </div>
-  <textarea ... />
-  <button ...>...</button>
-</form>
+          {/* FORM STARTS HERE */}
+          <form className="ai-form" onSubmit={handleSubmit}>
+            <div style={{ transform: "translateX(-250%)", width: "max-content" }}>
+              <label
+                htmlFor="shape-select"
+                style={{
+                  display: "block",
+                  fontSize: "0.91em",
+                  color: "#9fc1e4",
+                  fontWeight: 500,
+                  marginBottom: "2px",
+                  marginTop: "16px",
+                  letterSpacing: "0.01em"
+                }}
+              >
+                Shape
+              </label>
+              <select
+                id="shape-select"
+                className="ai-shape-select"
+                value={shape}
+                onChange={(e) => setShape(e.target.value)}
+                disabled={loading}
+                style={{
+                  marginBottom: "14px",
+                  padding: "8px",
+                  borderRadius: "8px",
+                  fontSize: "1.1em",
+                  minWidth: "185px",
+                  width: "100%"
+                }}
+              >
+                <option value="square">Square</option>
+                <option value="horizontal">Horizontal</option>
+                <option value="vertical">Vertical</option>
+              </select>
+            </div>
+            <textarea
+              className="ai-prompt-input"
+              placeholder="Describe your image..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              disabled={loading}
+              autoFocus
+              required
+              rows={3}
+              style={{
+                marginBottom: "18px",
+                width: "100%",
+                fontSize: "1.13em",
+                borderRadius: "8px",
+                border: "1px solid #aaa",
+                padding: "10px 14px",
+                resize: "vertical",
+                minHeight: "48px",
+                maxHeight: "130px",
+                background: "#23293b",
+                color: "#e3f0ff",
+                boxSizing: "border-box",
+                lineHeight: "1.4",
+              }}
+            />
+            <button
+              className="ai-generate-btn"
+              type="submit"
+              disabled={loading || !prompt.trim()}
+            >
+              {loading ? "Generating..." : "Generate 2 Images"}
+            </button>
+          </form>
+          {/* FORM ENDS HERE */}
           {error && <div className="ai-error-box">{error}</div>}
           {!images.length && !error && !loading && (
             <div className="ai-instructions" style={{ marginTop: "18px" }}>
