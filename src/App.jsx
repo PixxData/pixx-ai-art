@@ -244,43 +244,42 @@ function App() {
           >
             Pixx Prompt-to-Image
           </h1>
-          <form className="ai-form" onSubmit={handleSubmit}>
-            <label
-<div style={{ transform: "translateX(-250%)", width: "max-content" }}>
-  <label
-    htmlFor="shape-select"
-    style={{
-      display: "block",
-      fontSize: "0.91em",
-      color: "#9fc1e4",
-      fontWeight: 500,
-      marginBottom: "2px",
-      marginTop: "16px",
-      letterSpacing: "0.01em"
-    }}
-  >
-    Shape
-  </label>
-  <select
-    id="shape-select"
-    className="ai-shape-select"
-    value={shape}
-    onChange={(e) => setShape(e.target.value)}
-    disabled={loading}
-    style={{
-      marginBottom: "14px",
-      padding: "8px",
-      borderRadius: "8px",
-      fontSize: "1.1em",
-      minWidth: "185px",
-      width: "100%"
-    }}
-  >
-    <option value="square">Square</option>
-    <option value="horizontal">Horizontal</option>
-    <option value="vertical">Vertical</option>
-  </select>
-</div>
+<form className="ai-form" onSubmit={handleSubmit}>
+  <div style={{ transform: "translateX(-250%)", width: "max-content" }}>
+    <label
+      htmlFor="shape-select"
+      style={{
+        display: "block",
+        fontSize: "0.91em",
+        color: "#9fc1e4",
+        fontWeight: 500,
+        marginBottom: "2px",
+        marginTop: "16px",
+        letterSpacing: "0.01em"
+      }}
+    >
+      Shape
+    </label>
+    <select
+      id="shape-select"
+      className="ai-shape-select"
+      value={shape}
+      onChange={(e) => setShape(e.target.value)}
+      disabled={loading}
+      style={{
+        marginBottom: "14px",
+        padding: "8px",
+        borderRadius: "8px",
+        fontSize: "1.1em",
+        minWidth: "185px",
+        width: "100%"
+      }}
+    >
+      <option value="square">Square</option>
+      <option value="horizontal">Horizontal</option>
+      <option value="vertical">Vertical</option>
+    </select>
+  </div>
             <textarea
               className="ai-prompt-input"
               placeholder="Describe your image..."
