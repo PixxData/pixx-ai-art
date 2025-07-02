@@ -258,7 +258,7 @@ function App() {
     marginTop: "6px",
     letterSpacing: "0.01em",
     textAlign: "left",
-    marginLeft: "10px"   // <--- move this as far right as you want!
+    marginLeft: "15px"   // <--- move this as far right as you want!
   }}
 >
   Shape
